@@ -1,0 +1,32 @@
+/* Reset CSS */
+p {
+  padding: 0;
+  margin: 0;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 10px;
+}
+
+.container .left_panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-items: center;
+  gap: 10px;
+}
+
+.container .left_panel form .field {
+  margin-bottom: 10px;
+}
+
+.container .left_panel form .field .field_inner {
+  display: grid;
+  grid-template-columns: 140px auto;
+}
+
+.error_message {
+  color: red;
+}

@@ -12,18 +12,6 @@ class AuthController extends Controller
     $this->authService = new AuthService($userRepository);
   }
 
-  public function home(): void
-  {
-    if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== 'TRUE') {
-      $this->redirect('/login');
-      return;
-    }
-
-    echo '<h1>Profile Page</h1>';
-    echo '<p>Hello, ' . htmlspecialchars($_SESSION['user_name'] ?? 'User') . '</p>';
-    echo '<a href="/logout">Logout</a>';
-  }
-
   public function showLogin(): void
   {
     $this->view('auth/login', [

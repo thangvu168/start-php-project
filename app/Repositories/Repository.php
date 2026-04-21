@@ -49,7 +49,8 @@ class Repository
     $stmt = $this->db->prepare($sql);
 
     $types = str_repeat('s', count($data)) . 'i';
-    $stmt->bind_param($types, ...array_values($data), $id);
+    $params = array_merge(array_values($data), [$id]);
+    $stmt->bind_param($types, ...$params);
     return $stmt->execute();
   }
 

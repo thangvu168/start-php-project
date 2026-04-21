@@ -1,6 +1,6 @@
 <?php
 
-$router->get('/', [AuthController::class, 'home']);
+$router->get('/', [DashboardController::class, 'showDashboard']);
 $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);
 $router->get('/register', [AuthController::class, 'showRegister']);

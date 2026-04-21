@@ -6,6 +6,8 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../core/bootstrap.php';
 require_once __DIR__ . '/../app/bootstrap.php';
 
+ErrorHandler::register();
+
 $db = Database::getConnection();
 
 $router = new Router();

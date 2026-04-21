@@ -38,8 +38,7 @@ class Router
       $controller = new $controllerName();
       $controller->$methodName();
     } else {
-      http_response_code(404);
-      echo "404 Not Found";
+      throw new HttpException("Not found", 404);
     }
   }
 }

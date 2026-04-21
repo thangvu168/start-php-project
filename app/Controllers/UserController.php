@@ -11,11 +11,19 @@ class UserController extends Controller
         $this->userService = new UserService($userRepository);
     }
 
-    public function showProfile()
+    public function showProfile(): void
     {
         $userId = $_SESSION['user_id'] ?? null;
 
-        $user = $this->userService->getProfile($userId);
+        if ($userId === null) {
+            $this->redirect('/login');
+        }
+
+        $user = $this->userService->getProfile((int) $userId);
+
+        if ($user === null) {
+            throw new HttpException('User not found', 404);
+        }
 
         $success = $_SESSION['success'] ?? null;
         unset($_SESSION['success']);
@@ -27,22 +35,53 @@ class UserController extends Controller
         ]);
     }
 
-    public function changeProfile()
+    public function changeProfile(): void
     {
-        $userId = $_SESSION['user_id'];
+        $this->validateCsrfToken();
+
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if ($userId === null) {
+            $this->json([
+                'success' => false,
+                'message' => 'Unauthorized',
+                'errors' => [],
+                'redirect' => '/login'
+            ], 401);
+        }
 
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName  = trim($_POST['last_name'] ?? '');
 
-        if ($firstName === '' || $lastName === '') {
-            $user = $this->userService->getProfile($userId);
+        $errors = [];
 
-            $this->view('profile/index', [
-                'title' => 'Profile',
-                'error' => 'Please fill all required fields',
-                'user'  => $user
-            ]);
-            return;
+        if ($firstName === '') {
+            $errors['first_name'] = 'First name is required';
+        }
+
+        if ($lastName === '') {
+            $errors['last_name'] = 'Last name is required';
+        }
+
+        if (!empty($_FILES['avatar']['name'] ?? '')) {
+            $maxSize = 2 * 1024 * 1024;
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+            $avatarType = $_FILES['avatar']['type'] ?? '';
+            $avatarSize = (int) ($_FILES['avatar']['size'] ?? 0);
+
+            if (!in_array($avatarType, $allowedTypes, true)) {
+                $errors['avatar'] = 'Avatar must be jpeg, png or webp';
+            } elseif ($avatarSize > $maxSize) {
+                $errors['avatar'] = 'Avatar size must be less than 2MB';
+            }
+        }
+
+        if (!empty($errors)) {
+            $this->json([
+                'success' => false,
+                'message' => 'Please check your input',
+                'errors' => $errors,
+            ], 422);
         }
 
         try {
@@ -55,21 +94,27 @@ class UserController extends Controller
             }
 
             // Update DB
-            $this->userService->updateProfile($userId, $firstName, $lastName, $avatarPath);
+            $this->userService->updateProfile((int) $userId, $firstName, $lastName, $avatarPath);
 
             $_SESSION['name'] = $firstName . ' ' . $lastName;
-            $_SESSION['avatar'] = $avatarPath;
-            $_SESSION['success'] = 'Update profile success';
+            if ($avatarPath !== null) {
+                $_SESSION['avatar'] = $avatarPath;
+            }
 
-            $this->redirect('/profile');
-        } catch (Exception $e) {
-            $user = $this->userService->getProfile($userId);
-
-            $this->view('profile/index', [
-                'title' => 'Profile',
-                'user'  => $user,
-                'error' => $e->getMessage(),
+            $this->json([
+                'success' => true,
+                'message' => 'Update profile success',
+                'data' => [
+                    'name' => $_SESSION['name'],
+                    'avatar' => $_SESSION['avatar'] ?? null,
+                ]
             ]);
+        } catch (Exception $e) {
+            $this->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => []
+            ], 400);
         }
     }
 }

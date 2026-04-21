@@ -28,6 +28,10 @@ class AuthService
       throw new Exception("Email already exists");
     }
 
+    if ($this->getUserByUsername($data['username'])) {
+      throw new Exception("Username already exists");
+    }
+
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
     return $this->userRepository->create([
@@ -44,6 +48,20 @@ class AuthService
     $users = $this->userRepository->execute(
       "SELECT * FROM users WHERE email = ?",
       [$email]
+    );
+
+    if (empty($users)) {
+      return null;
+    }
+
+    return User::fromArray($users[0]);
+  }
+
+  private function getUserByUsername(string $username): ?User
+  {
+    $users = $this->userRepository->execute(
+      "SELECT * FROM users WHERE username = ?",
+      [$username]
     );
 
     if (empty($users)) {

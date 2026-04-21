@@ -14,6 +14,14 @@ class View
             return;
         }
 
+        if (!isset($_SESSION['_csrf_token']) || !is_string($_SESSION['_csrf_token'])) {
+            $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        if (!isset($data['csrf_token'])) {
+            $data['csrf_token'] = $_SESSION['_csrf_token'];
+        }
+
         // Extract is used to convert array keys into variables
         /**
          * Example:

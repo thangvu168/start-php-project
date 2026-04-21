@@ -13,4 +13,4 @@ $db = Database::getConnection();
 $router = new Router();
 require_once __DIR__ . '/../routes/web.php';
 
-$route = $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

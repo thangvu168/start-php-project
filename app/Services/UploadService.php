@@ -36,7 +36,9 @@ class UploadService
 
         $fullPath = $this::$_UPLOAD_DIR . $fileName;
 
-        move_uploaded_file($file['tmp_name'], $fullPath);
+        if (!move_uploaded_file($file['tmp_name'], $fullPath)) {
+            throw new HttpException('Failed to save uploaded file');
+        }
 
         return '/uploads/avatars/' . $fileName;
     }

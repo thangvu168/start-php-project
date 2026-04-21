@@ -31,30 +31,45 @@ class AuthController extends Controller
 
   public function login(): void
   {
+    $this->validateCsrfToken();
+
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
 
-    if ($email === '' || $password === '') {
-      $this->view('auth/login', [
-        'title' => 'Login',
-        'error' => 'Please enter email and password',
-        'success' => '',
-        'old' => ['email' => $email],
-      ]);
-      return;
+    $errors = [];
+
+    if ($email === '') {
+      $errors['email'] = 'Email is required';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $errors['email'] = 'Email format is invalid';
+    }
+
+    if ($password === '') {
+      $errors['password'] = 'Password is required';
+    }
+
+    if (!empty($errors)) {
+      $this->json([
+        'success' => false,
+        'message' => 'Please check your input',
+        'errors' => $errors,
+      ], 422);
     }
 
     $user = $this->authService->login($email, $password);
 
     if (!$user) {
-      $this->view('auth/login', [
-        'title' => 'Login',
-        'error' => 'Invalid email or password',
-        'success' => '',
-        'old' => ['email' => $email],
-      ], 'auth');
-      return;
+      $this->json([
+        'success' => false,
+        'message' => 'Invalid email or password',
+        'errors' => [
+          'email' => 'Invalid email or password',
+          'password' => 'Invalid email or password',
+        ],
+      ], 401);
     }
+
+    session_regenerate_id(true);
 
     // Set user session
     $_SESSION['user_id'] = $user->id;
@@ -64,8 +79,11 @@ class AuthController extends Controller
     $_SESSION['avatar'] = $user->avatar;
     $_SESSION['logged_in'] = true;
 
-    // Redirect to home page
-    $this->redirect('/');
+    $this->json([
+      'success' => true,
+      'message' => 'Login successful',
+      'redirect' => '/',
+    ]);
   }
 
   public function showRegister(): void
@@ -84,6 +102,8 @@ class AuthController extends Controller
 
   public function register(): void
   {
+    $this->validateCsrfToken();
+
     $confirmPassword = trim($_POST['confirm_password'] ?? '');
     $data = [
       'first_name' => trim($_POST['first_name'] ?? ''),
@@ -93,43 +113,65 @@ class AuthController extends Controller
       'password' => trim($_POST['password'] ?? ''),
     ];
 
-    if (
-      $data['email'] === '' ||
-      $data['username'] === '' ||
-      $data['password'] === ''
-    ) {
-      $this->view('auth/register', [
-        'title' => 'Register',
-        'error' => 'Please fill all required fields',
-        'old' => $data,
-      ], 'auth');
-      return;
+    $errors = [];
+
+    if ($data['username'] === '') {
+      $errors['username'] = 'Username is required';
+    } elseif (mb_strlen($data['username']) < 3) {
+      $errors['username'] = 'Username must be at least 3 characters';
     }
 
-    if ($data['password'] !== $confirmPassword) {
-      $this->view('auth/register', [
-        'title' => 'Register',
-        'error' => 'Confirm password is incorrect',
-        'old' => $data,
-      ], 'auth');
-      return;
+    if ($data['email'] === '') {
+      $errors['email'] = 'Email is required';
+    } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+      $errors['email'] = 'Email format is invalid';
+    }
+
+    if ($data['password'] === '') {
+      $errors['password'] = 'Password is required';
+    } elseif (mb_strlen($data['password']) < 6) {
+      $errors['password'] = 'Password must be at least 6 characters';
+    }
+
+    if ($confirmPassword === '') {
+      $errors['confirm_password'] = 'Confirm password is required';
+    } elseif ($data['password'] !== $confirmPassword) {
+      $errors['confirm_password'] = 'Confirm password is incorrect';
+    }
+
+    if (!empty($errors)) {
+      $this->json([
+        'success' => false,
+        'message' => 'Please check your input',
+        'errors' => $errors,
+      ], 422);
     }
 
     try {
       $this->authService->register($data);
-      $_SESSION['success'] = 'Registration successful. Please login.';
-      $this->redirect('/login');
+
+      $this->json([
+        'success' => true,
+        'message' => 'Registration successful. Please login.',
+        'redirect' => '/login',
+      ], 201);
     } catch (Exception $e) {
-      $this->view('auth/register', [
-        'title' => 'Register',
-        'error' => $e->getMessage(),
-        'old' => $data,
-      ], 'auth');
+      $this->json([
+        'success' => false,
+        'message' => $e->getMessage(),
+        'errors' => [],
+      ], 400);
     }
   }
 
   public function logout(): void
   {
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+      throw new HttpException('Method not allowed', 405);
+    }
+
+    $this->validateCsrfToken();
+
     $_SESSION = [];
     session_destroy();
     $this->redirect('/login');

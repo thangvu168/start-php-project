@@ -1,49 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+<?php
+$avatar = $user['avatar'] ?? '/assets/image/default-avatar.png';
+?>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= $title ?></title>
-</head>
+<h1><?= htmlspecialchars($title ?? 'Profile') ?></h1>
 
-<body>
-    <h1>Profile</h1>
-    <form action="/profile" method="post" enctype="multipart/form-data">
-        <p>Avatar:</p>
-        <img src="<?= $user['avatar'] ?>" id="avatarPreview" />
-        <input type="file" name="avatar" accept="image/*" id="avatarInput">
-        <p>Username: </p>
-        <input type="text" value="<?= $user['username'] ?>" disabled>
-        <p>Email: </p>
-        <input type="email" value="<?= $user['email'] ?>" disabled>
-        <p>First name: </p>
-        <input type="text" value="<?= $user['first_name'] ?>" name="first_name">
-        <p>Last name: </p>
-        <input type="text" value="<?= $user['last_name'] ?>" name="last_name">
+<p class="js-form-message" style="display:none;"></p>
 
-        <button type="submit">Submit</button>
-    </form>
+<?php if (!empty($error)): ?>
+    <p style="color: red;"><?= htmlspecialchars($error) ?></p>
+<?php endif; ?>
 
-</body>
+<?php if (!empty($success)): ?>
+    <p style="color: green;"><?= htmlspecialchars($success) ?></p>
+<?php endif; ?>
 
-</html>
+<form id="profileForm" action="/profile" method="post" enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
 
-<script>
-    document.getElementById('avatarInput').addEventListener('change', function(event) {
-        const file = event.target.files[0];
+    <p>Avatar:</p>
+    <img src="<?= htmlspecialchars($avatar) ?>" id="avatarPreview" alt="Avatar" width="120" height="120" />
+    <input type="file" name="avatar" accept="image/*" id="avatarInput">
+    <small class="js-field-error" data-field="avatar" style="color:red;"></small>
+    <p>Username: </p>
+    <input type="text" value="<?= htmlspecialchars($user['username'] ?? '') ?>" disabled>
+    <p>Email: </p>
+    <input type="email" value="<?= htmlspecialchars($user['email'] ?? '') ?>" disabled>
+    <p>First name: </p>
+    <input id="first_name" type="text" value="<?= htmlspecialchars($user['first_name'] ?? '') ?>" name="first_name">
+    <small class="js-field-error" data-field="first_name" style="color:red;"></small>
+    <p>Last name: </p>
+    <input id="last_name" type="text" value="<?= htmlspecialchars($user['last_name'] ?? '') ?>" name="last_name">
+    <small class="js-field-error" data-field="last_name" style="color:red;"></small>
 
-        if (!file) return;
-
-        // chỉ cho image
-        if (!file.type.startsWith('image/')) {
-            alert('Please select an image file');
-            return;
-        }
-
-        // cách 1 (hiện đại, nhanh nhất)
-        const imageUrl = URL.createObjectURL(file);
-
-        document.getElementById('avatarPreview').src = imageUrl;
-    });
-</script>
+    <button type="submit">Submit</button>
+</form>

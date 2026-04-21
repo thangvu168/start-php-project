@@ -19,6 +19,23 @@ class ErrorHandler
 
         http_response_code($statusCode);
 
+        $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+        $isJsonRequest = strtolower($requestedWith) === 'xmlhttprequest' || str_contains($accept, 'application/json');
+
+        if ($isJsonRequest) {
+            header('Content-Type: application/json; charset=utf-8');
+
+            $message = $statusCode >= 500 ? 'Server error' : $exception->getMessage();
+
+            echo json_encode([
+                'success' => false,
+                'message' => $message,
+                'errors' => []
+            ]);
+            return;
+        }
+
         self::renderErrorView($statusCode, $exception);
     }
 

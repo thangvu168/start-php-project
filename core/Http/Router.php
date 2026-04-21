@@ -42,7 +42,14 @@ class Router
       $controllerName = $action[0];
       $methodName = $action[1];
 
-      require_once __DIR__ . "/../../app/Controllers/{$controllerName}.php";
+      if (!class_exists($controllerName)) {
+        throw new HttpException("Controller not found", 500);
+      }
+
+      if (!method_exists($controllerName, $methodName)) {
+        throw new HttpException("Action not found", 500);
+      }
+
       $controller = new $controllerName();
       $controllerAction = fn() => $controller->$methodName();
       $pipeline = $this->buildPipelineMiddleware($route->middlewares, $controllerAction);

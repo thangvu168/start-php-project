@@ -1,44 +1,37 @@
-<?php
-$title = $title ?? 'Login';
-$error = $error ?? '';
-$success = $success ?? '';
-$old = $old ?? [];
-?>
-<!DOCTYPE html>
-<html lang="en">
+<div class="panel__left">
+  <div class="">LOGO</div>
+  <div>
+    <form action="" method="post">
+      <h1>Đăng nhập</h1>
+      <p>Chào mừng trở lại. Đăng nhập để bắt đầu làm việc.</p>
+      <div class="form__inner">
+        <div class="field">
+          <div class="label">
+            <label for="email">Email</label>
+          </div>
+          <div class="input">
+            <input type="email" name="email">
+          </div>
+        </div>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><?= htmlspecialchars($title) ?></title>
-</head>
+        <div class="field">
+          <div class="label">
+            <label for="email">Mật khẩu</label>
+            <span>Quên mật khẩu?</span>
+          </div>
+          <div class="input">
+            <input type="password" name="password">
+          </div>
+        </div>
 
-<body>
-  <h1><?= htmlspecialchars($title) ?></h1>
+        <div>
+          <input type="checkbox" name="saved">
+          <span>&nbsp; Giữ tôi luôn đăng nhập</span>
+        </div>
 
-  <?php if ($success !== ''): ?>
-    <p style="color: green;"><?= htmlspecialchars($success) ?></p>
-  <?php endif; ?>
-
-  <?php if ($error !== ''): ?>
-    <p style="color: red;"><?= htmlspecialchars($error) ?></p>
-  <?php endif; ?>
-
-  <form action="/login" method="post" novalidate>
-    <div>
-      <label for="email">Email</label>
-      <input id="email" type="email" name="email" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-    </div>
-
-    <div>
-      <label for="password">Password</label>
-      <input id="password" type="password" name="password">
-    </div>
-
-    <button type="submit">Login</button>
-  </form>
-
-  <p><a href="/register">Create account</a></p>
-</body>
-
-</html>
+        <button>Đăng nhập</button>
+        <button>Đăng nhập bằng Base ID</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -11,7 +11,7 @@
     <?php include __DIR__ . '/partials/header.php'; ?>
     <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-    <div class="content">
+    <div class="main__container">
         <?= $content ?>
     </div>
 

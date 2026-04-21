@@ -10,6 +10,9 @@ require_once __DIR__ . '/../app/Repositories/UserRepository.php';
 
 // Controller
 require_once __DIR__ . '/../app/Controllers/AuthController.php';
+require_once __DIR__ . '/../app/Controllers/UserController.php';
 
 // Services
 require_once __DIR__ . '/../app/Services/AuthService.php';
+require_once __DIR__ . '/../app/Services/UserService.php';
+require_once __DIR__ . '/../app/Services/UploadService.php';

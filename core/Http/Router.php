@@ -8,19 +8,26 @@ class Router
    * Action: [ControllerName, MethodName]
    */
 
-  public function get(string $path, array $action): void
+  public function get(string $path, array $action): Route
   {
-    $this->addRoute('get', $path, $action);
+    return $this->addRoute('get', $path, $action);
   }
 
-  public function post(string $path, array $action): void
+  public function post(string $path, array $action): Route
   {
-    $this->addRoute('post', $path, $action);
+    return $this->addRoute('post', $path, $action);
   }
 
-  private function addRoute(string $method, string $path, array $action): void
+  public function put(string $path, array $action): Route
   {
-    $this->routes[$method][$path] = $action;
+    return $this->addRoute('put', $path, $action);
+  }
+
+  private function addRoute(string $method, string $path, array $action): Route
+  {
+    $route = new Route($method, $path, $action);
+    $this->routes[$method][$path] = $route;
+    return $route;
   }
 
   public function dispatch(string $method, string $uri): void
@@ -30,15 +37,34 @@ class Router
 
     // Check route exists
     if (isset($this->routes[$method][$path])) {
-      $action = $this->routes[$method][$path];
+      $route = $this->routes[$method][$path];
+      $action = $route->action;
       $controllerName = $action[0];
       $methodName = $action[1];
 
       require_once __DIR__ . "/../../app/Controllers/{$controllerName}.php";
       $controller = new $controllerName();
-      $controller->$methodName();
+      $controllerAction = fn() => $controller->$methodName();
+      $pipeline = $this->buildPipelineMiddleware($route->middlewares, $controllerAction);
+      $pipeline();
     } else {
       throw new HttpException("Not found", 404);
     }
+  }
+
+  private function buildPipelineMiddleware(array $middlewares, callable $cb): callable
+  {
+    $next = $cb;
+    foreach (array_reverse($middlewares) as $middlewareClass) {
+      $middleware = new $middlewareClass();
+
+      // Closure - Anonymous function
+      // use - Capture variable
+      $next = function () use ($middleware, $next) {
+        return $middleware->handle($next);
+      };
+    }
+
+    return $next;
   }
 }

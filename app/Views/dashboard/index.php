@@ -1,5 +1,6 @@
 <?php
 $title = $title ?? 'Dashboard';
+$userName = $userName ?? ''
 ?>
 
 <!DOCTYPE html>
@@ -13,7 +14,8 @@ $title = $title ?? 'Dashboard';
 
 <body>
     <h1><?= htmlspecialchars($title) ?></h1>
-    <p><?= htmlspecialchars($_SESSION['user_name']) ?></p>
+    <p><?= htmlspecialchars($userName) ?></p>
+    <a href="/profile">Profile</a>
     <a href="/logout">Logout</a>
 </body>
 

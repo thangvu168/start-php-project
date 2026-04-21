@@ -16,6 +16,9 @@ class ErrorHandler
             $statusCode = $exception->getCode();
         }
 
+        echo $exception->getMessage();
+        echo $exception->getTraceAsString();
+
         http_response_code($statusCode);
 
         self::renderErrorView($statusCode, $exception);

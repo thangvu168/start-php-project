@@ -28,11 +28,9 @@ class AuthService
       throw new Exception("Email already exists");
     }
 
-    $name = $data['first_name'] . ' ' . $data['last_name'];
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
 
     return $this->userRepository->create([
-      'name' => $name,
       'first_name' => $data['first_name'],
       'last_name' => $data['last_name'],
       'username' => $data['username'],

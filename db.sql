@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
     `id` int(11) NOT NULL AUTO_INCREMENT,
     `username` varchar(30) NOT NULL,
-    `name` varchar(50) DEFAULT NULL,
     `first_name` varchar(50) DEFAULT NULL,
     `last_name` varchar(50) DEFAULT NULL,
     `email` varchar(50) NOT NULL,
@@ -14,4 +13,4 @@ CREATE TABLE `users` (
     PRIMARY KEY (`id`),
     UNIQUE KEY `uq_users_email` (`email`),
     UNIQUE KEY `uq_users_username` (`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;

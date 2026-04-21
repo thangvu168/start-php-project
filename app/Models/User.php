@@ -4,7 +4,6 @@ class User extends BaseModel
 {
   public function __construct(
     int $id,
-    public string $name,
     public string $firstName,
     public string $lastName,
     public string $username,
@@ -29,7 +28,6 @@ class User extends BaseModel
   {
     return new self(
       id: $data['id'],
-      name: $data['name'],
       firstName: $data['first_name'],
       lastName: $data['last_name'],
       username: $data['username'],
@@ -46,7 +44,6 @@ class User extends BaseModel
   {
     return [
       'id' => $this->id,
-      'name' => $this->name,
       'first_name' => $this->firstName,
       'last_name' => $this->lastName,
       'username' => $this->username,

@@ -59,8 +59,10 @@ class AuthController extends Controller
     // Set user session
     $_SESSION['user_id'] = $user->id;
     $_SESSION['email'] = $user->email;
-    $_SESSION['user_name'] = $user->name;
-    $_SESSION['logged_in'] = 'TRUE';
+    $_SESSION['user_name'] = $user->username;
+    $_SESSION['name'] = $user->firstName . " " . $user->lastName;
+    $_SESSION['avatar'] = $user->avatar;
+    $_SESSION['logged_in'] = true;
 
     // Redirect to home page
     $this->redirect('/');

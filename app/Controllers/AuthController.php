@@ -19,7 +19,7 @@ class AuthController extends Controller
       'error' => $_SESSION['error'] ?? '',
       'success' => $_SESSION['success'] ?? '',
       'old' => [],
-    ]);
+    ], 'auth');
 
     unset($_SESSION['error'], $_SESSION['success']);
   }
@@ -52,7 +52,7 @@ class AuthController extends Controller
         'error' => 'Invalid email or password',
         'success' => '',
         'old' => ['email' => $email],
-      ]);
+      ], 'auth');
       return;
     }
 
@@ -74,7 +74,7 @@ class AuthController extends Controller
       'title' => 'Register',
       'error' => '',
       'old' => [],
-    ]);
+    ], 'auth');
   }
 
   public function showRegisterForm(): void
@@ -102,7 +102,7 @@ class AuthController extends Controller
         'title' => 'Register',
         'error' => 'Please fill all required fields',
         'old' => $data,
-      ]);
+      ], 'auth');
       return;
     }
 
@@ -111,7 +111,7 @@ class AuthController extends Controller
         'title' => 'Register',
         'error' => 'Confirm password is incorrect',
         'old' => $data,
-      ]);
+      ], 'auth');
       return;
     }
 
@@ -124,7 +124,7 @@ class AuthController extends Controller
         'title' => 'Register',
         'error' => $e->getMessage(),
         'old' => $data,
-      ]);
+      ], 'auth');
     }
   }
 

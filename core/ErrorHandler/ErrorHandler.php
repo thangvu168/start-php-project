@@ -16,8 +16,6 @@ class ErrorHandler
             $statusCode = $exception->getCode();
         }
 
-        echo $exception->getMessage();
-        echo $exception->getTraceAsString();
 
         http_response_code($statusCode);
 
@@ -31,8 +29,6 @@ class ErrorHandler
 
     private static function renderErrorView(int $code, Throwable $e)
     {
-        $message = $e->getMessage();
-
-        require __DIR__ . "/../../app/Views/{$code}.php";
+        View::renderError($code);
     }
 }

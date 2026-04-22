@@ -1,6 +1,16 @@
 {
   "editor.formatOnSave": true,
-  
+
+  "editor.quickSuggestions": {
+    "other": "on",
+    "comments": "on",
+    "strings": "on"
+  },
+
+  "editor.suggestOnTriggerCharacters": true,
+  "editor.inlineSuggest.enabled": true,
+  "editor.wordBasedSuggestions": "matchingDocuments",
+
   "[php]": {
     "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
   },

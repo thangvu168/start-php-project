@@ -10,6 +10,14 @@ class AuthService
   {
     $user = $this->getUserByEmail($email);
 
+    error_log('[LOGIN ATTEMPT] ' . json_encode([
+      'user' => $user ? $user->toArray() : null,
+      'email' => $email,
+      'password_current_hash' => password_hash($password, PASSWORD_DEFAULT),
+      'hashed_password' => $user->password ?? null,
+      'ip' => $_SERVER['REMOTE_ADDR'] ?? null
+    ]));
+
     if (!$user) {
       return null;
     }
@@ -25,11 +33,11 @@ class AuthService
   {
     // Check if email already exists
     if ($this->getUserByEmail($data['email'])) {
-      throw new Exception("Email already exists");
+      throw new Exception("Email đã tồn tại");
     }
 
     if ($this->getUserByUsername($data['username'])) {
-      throw new Exception("Username already exists");
+      throw new Exception("Tên đăng nhập đã tồn tại");
     }
 
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
@@ -49,6 +57,12 @@ class AuthService
       "SELECT * FROM users WHERE email = ?",
       [$email]
     );
+
+    error_log('[GET USER BY EMAIL] ' . json_encode([
+      'email' => $email,
+      'result_count' => count($users),
+      'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+    ]));
 
     if (empty($users)) {
       return null;

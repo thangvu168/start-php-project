@@ -5,9 +5,16 @@
   --success: #16a34a;
   --warning: #f59e0b;
   --danger: #ef4444;
+  --white: #ffffff;
 
   --text: #111827;
   --muted: #6b7280;
 
   --bg: #f6f6f6;
+  --border: #ccc;
+
+  --focus-shadow: rgba(66, 184, 20, 0.3);
+  --focus-border: rgba(66, 184, 20, 0.7);
+
+  --primary-hover: #1e5fb8;
 }

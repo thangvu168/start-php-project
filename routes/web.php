@@ -18,3 +18,4 @@ $router->get('/profile', [UserController::class, 'showProfile'])->middleware([
 $router->post('/profile', [UserController::class, 'changeProfile'])->middleware([
     AuthMiddleware::class
 ]);
+

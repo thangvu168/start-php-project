@@ -39,19 +39,19 @@ class AuthController extends Controller
     $errors = [];
 
     if ($email === '') {
-      $errors['email'] = 'Email is required';
+      $errors['email'] = 'Email là bắt buộc';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-      $errors['email'] = 'Email format is invalid';
+      $errors['email'] = 'Định dạng email không hợp lệ';
     }
 
     if ($password === '') {
-      $errors['password'] = 'Password is required';
+      $errors['password'] = 'Mật khẩu là bắt buộc';
     }
 
     if (!empty($errors)) {
       $this->json([
         'success' => false,
-        'message' => 'Please check your input',
+        'message' => 'Vui lòng kiểm tra lại thông tin',
         'errors' => $errors,
       ], 422);
     }
@@ -59,13 +59,14 @@ class AuthController extends Controller
     $user = $this->authService->login($email, $password);
 
     if (!$user) {
+      error_log('[LOGIN FAILED] Invalid credentials: ' . json_encode([
+        'email' => $email,
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+      ]));
+
       $this->json([
         'success' => false,
-        'message' => 'Invalid email or password',
-        'errors' => [
-          'email' => 'Invalid email or password',
-          'password' => 'Invalid email or password',
-        ],
+        'message' => 'Email hoặc mật khẩu không đúng',
       ], 401);
     }
 
@@ -81,7 +82,7 @@ class AuthController extends Controller
 
     $this->json([
       'success' => true,
-      'message' => 'Login successful',
+      'message' => 'Đăng nhập thành công',
       'redirect' => '/',
     ]);
   }
@@ -93,11 +94,6 @@ class AuthController extends Controller
       'error' => '',
       'old' => [],
     ], 'auth');
-  }
-
-  public function showRegisterForm(): void
-  {
-    $this->showRegister();
   }
 
   public function register(): void
@@ -116,33 +112,39 @@ class AuthController extends Controller
     $errors = [];
 
     if ($data['username'] === '') {
-      $errors['username'] = 'Username is required';
-    } elseif (mb_strlen($data['username']) < 3) {
-      $errors['username'] = 'Username must be at least 3 characters';
+      $errors['username'] = 'Tên đăng nhập là bắt buộc';
+    } elseif (strlen($data['username']) < 3) {
+      $errors['username'] = 'Tên đăng nhập phải có ít nhất 3 ký tự';
     }
 
     if ($data['email'] === '') {
-      $errors['email'] = 'Email is required';
+      $errors['email'] = 'Email là bắt buộc';
     } elseif (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-      $errors['email'] = 'Email format is invalid';
+      $errors['email'] = 'Định dạng email không hợp lệ';
     }
 
     if ($data['password'] === '') {
-      $errors['password'] = 'Password is required';
-    } elseif (mb_strlen($data['password']) < 6) {
-      $errors['password'] = 'Password must be at least 6 characters';
+      $errors['password'] = 'Mật khẩu là bắt buộc';
+    } elseif (strlen($data['password']) < 6) {
+      $errors['password'] = 'Mật khẩu phải có ít nhất 6 ký tự';
     }
 
     if ($confirmPassword === '') {
-      $errors['confirm_password'] = 'Confirm password is required';
+      $errors['confirm_password'] = 'Xác nhận mật khẩu là bắt buộc';
     } elseif ($data['password'] !== $confirmPassword) {
-      $errors['confirm_password'] = 'Confirm password is incorrect';
+      $errors['confirm_password'] = 'Xác nhận mật khẩu không đúng';
     }
 
     if (!empty($errors)) {
+      error_log('[REGISTER VALIDATION FAILED] ' . json_encode([
+        'data' => $data,
+        'errors' => $errors,
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+      ]));
+
       $this->json([
         'success' => false,
-        'message' => 'Please check your input',
+        'message' => 'Vui lòng kiểm tra lại thông tin',
         'errors' => $errors,
       ], 422);
     }
@@ -152,10 +154,19 @@ class AuthController extends Controller
 
       $this->json([
         'success' => true,
-        'message' => 'Registration successful. Please login.',
+        'message' => 'Đăng kí thành công. Vui lòng đăng nhập.',
         'redirect' => '/login',
       ], 201);
     } catch (Exception $e) {
+
+      error_log('[REGISTER ERROR] ' . json_encode([
+        'data' => $data,
+        'error' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+      ]));
+
+
       $this->json([
         'success' => false,
         'message' => $e->getMessage(),
@@ -167,7 +178,7 @@ class AuthController extends Controller
   public function logout(): void
   {
     if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
-      throw new HttpException('Method not allowed', 405);
+      throw new HttpException('Phương thức không được phép', 405);
     }
 
     $this->validateCsrfToken();

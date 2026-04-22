@@ -1,7 +1,7 @@
+// Avoid conflict $
 (function ($) {
   function clearErrors($form) {
     $form.find(".js-field-error").text("");
-    hideMessage($form);
   }
 
   function setFieldError($form, field, message) {
@@ -10,16 +10,24 @@
       .text(message || "");
   }
 
-  function showMessage($form, message, isSuccess) {
-    var $message = $form.find(".js-form-message");
-    $message
-      .text(message || "")
-      .css("color", isSuccess ? "green" : "red")
-      .show();
+  function renderErrors($form, errors) {
+    clearErrors($form);
+
+    if (!errors) return;
+
+    $.each(errors, function (field, message) {
+      setFieldError($form, field, message);
+    });
   }
 
-  function hideMessage($form) {
-    $form.find(".js-form-message").text("").hide();
+  function bindFieldClearOnInput($form) {
+    $form.on("input", "input, select, textarea", function () {
+      var name = $(this).attr("name");
+
+      if (!name) return;
+
+      $form.find('.js-field-error[data-field="' + name + '"]').text("");
+    });
   }
 
   function isValidEmail(email) {
@@ -28,17 +36,18 @@
 
   function validateLogin($form) {
     var errors = {};
+
     var email = $.trim($form.find('[name="email"]').val());
     var password = $.trim($form.find('[name="password"]').val());
 
     if (!email) {
-      errors.email = "Email is required";
+      errors.email = "Email là bắt buộc";
     } else if (!isValidEmail(email)) {
-      errors.email = "Email format is invalid";
+      errors.email = "Định dạng email không hợp lệ";
     }
 
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Mật khẩu là bắt buộc";
     }
 
     return errors;
@@ -46,58 +55,66 @@
 
   function validateRegister($form) {
     var errors = {};
+
+    var firstName = $.trim($form.find('[name="first_name"]').val());
+    var lastName = $.trim($form.find('[name="last_name"]').val());
     var username = $.trim($form.find('[name="username"]').val());
     var email = $.trim($form.find('[name="email"]').val());
     var password = $.trim($form.find('[name="password"]').val());
     var confirmPassword = $.trim($form.find('[name="confirm_password"]').val());
 
+    if (!firstName) {
+      errors.first_name = "Họ là bắt buộc";
+    }
+
+    if (!lastName) {
+      errors.last_name = "Tên là bắt buộc";
+    }
+
     if (!username) {
-      errors.username = "Username is required";
+      errors.username = "Tên đăng nhập là bắt buộc";
     } else if (username.length < 3) {
-      errors.username = "Username must be at least 3 characters";
+      errors.username = "Tên đăng nhập phải có ít nhất 3 ký tự";
     }
 
     if (!email) {
-      errors.email = "Email is required";
+      errors.email = "Email là bắt buộc";
     } else if (!isValidEmail(email)) {
-      errors.email = "Email format is invalid";
+      errors.email = "Định dạng email không hợp lệ";
     }
 
     if (!password) {
-      errors.password = "Password is required";
+      errors.password = "Mật khẩu là bắt buộc";
     } else if (password.length < 6) {
-      errors.password = "Password must be at least 6 characters";
+      errors.password = "Mật khẩu phải có ít nhất 6 ký tự";
     }
 
     if (!confirmPassword) {
-      errors.confirm_password = "Confirm password is required";
+      errors.confirm_password = "Xác nhận mật khẩu là bắt buộc";
     } else if (password !== confirmPassword) {
-      errors.confirm_password = "Confirm password is incorrect";
+      errors.confirm_password = "Xác nhận mật khẩu không đúng";
     }
 
     return errors;
   }
 
-  function renderErrors($form, errors) {
-    clearErrors($form);
-
-    if (!errors) {
-      return;
-    }
-
-    $.each(errors, function (field, message) {
-      setFieldError($form, field, message);
-    });
+  function showModal(message) {
+    $("#errorModal .modal__body").text(message);
+    $("#errorModal").removeClass("hidden");
   }
 
-  function submitJsonForm($form, validateFn) {
+  function hideModal() {
+    $("#errorModal").addClass("hidden");
+  }
+
+  function submitJsonForm($form, validateFn, onApiError) {
     $form.on("submit", function (event) {
       event.preventDefault();
 
       var errors = validateFn($form);
+
       if (Object.keys(errors).length > 0) {
         renderErrors($form, errors);
-        showMessage($form, "Please check your input", false);
         return;
       }
 
@@ -114,20 +131,14 @@
       })
         .done(function (response) {
           if (!response || response.success !== true) {
-            showMessage(
-              $form,
-              (response && response.message) || "Request failed",
-              false,
-            );
             renderErrors($form, response ? response.errors : {});
 
-            if (response && response.redirect) {
-              window.location.href = response.redirect;
+            if (typeof onApiError === "function") {
+              onApiError(response);
             }
+
             return;
           }
-
-          showMessage($form, response.message || "Success", true);
 
           if (response.redirect) {
             window.location.href = response.redirect;
@@ -136,31 +147,45 @@
         .fail(function (xhr) {
           var payload = xhr.responseJSON || {};
 
-          if (payload.redirect) {
-            window.location.href = payload.redirect;
-            return;
-          }
-
-          showMessage(
-            $form,
-            payload.message || "Server error. Please try again.",
-            false,
-          );
           renderErrors($form, payload.errors || {});
+
+          if (typeof onApiError === "function") {
+            onApiError(payload);
+          }
         });
     });
   }
+
+  function showApiErrorModal(payload) {
+    var message = payload?.message || "Đã xảy ra lỗi hệ thống";
+
+    showModal(message);
+  }
+
+  $(function () {
+    $("#closeModalBtn, .modal__overlay").on("click", function () {
+      hideModal();
+    });
+
+    $(document).on("keydown", function (e) {
+      if (e.key === "Escape") {
+        hideModal();
+      }
+    });
+  });
 
   $(function () {
     var $loginForm = $("#loginForm");
     var $registerForm = $("#registerForm");
 
     if ($loginForm.length) {
-      submitJsonForm($loginForm, validateLogin);
+      bindFieldClearOnInput($loginForm);
+      submitJsonForm($loginForm, validateLogin, showApiErrorModal);
     }
 
     if ($registerForm.length) {
-      submitJsonForm($registerForm, validateRegister);
+      bindFieldClearOnInput($registerForm);
+      submitJsonForm($registerForm, validateRegister, showApiErrorModal);
     }
   });
 })(jQuery);

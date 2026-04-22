@@ -26,7 +26,15 @@ class ErrorHandler
         if ($isJsonRequest) {
             header('Content-Type: application/json; charset=utf-8');
 
-            $message = $statusCode >= 500 ? 'Server error' : $exception->getMessage();
+            $message = $statusCode >= 500 ? 'Lỗi máy chủ' : $exception->getMessage();
+
+
+            error_log('[REGISTER ERROR] ' . json_encode([
+                'error' => $exception->getMessage(),
+                'trace' => $exception->getTraceAsString(),
+                'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+            ]));
+
 
             echo json_encode([
                 'success' => false,

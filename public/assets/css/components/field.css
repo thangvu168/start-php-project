@@ -1,0 +1,48 @@
+.field {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.field .label {
+  padding-bottom: 10px;
+  font-weight: bold;
+  font-size: 13px;
+  width: 100%;
+  text-align: start;
+}
+
+.field .input {
+  background-color: var(--white);
+  border-radius: var(--radius-sm);
+  position: relative;
+  width: 100%;
+}
+
+.field .input input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-sizing: border-box;
+  width: 100%;
+  font-size: 16px;
+  padding: 10px;
+}
+
+.field .input input:focus {
+  outline: none;
+  box-shadow: 0 0 8px var(--focus-shadow-green);
+  border-color: var(--focus-border-green);
+}
+
+.field .input input:disabled {
+  background-color: var(--secondary);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+.field .error-message {
+  color: var(--error);
+  font-size: 12px;
+  margin-top: 5px;
+}

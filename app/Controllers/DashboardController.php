@@ -6,7 +6,6 @@ class DashboardController extends Controller
     {
         $this->view('dashboard/index', [
             'title' => "Dashboard",
-            'userName' => $_SESSION['user_name']
         ]);
     }
 }

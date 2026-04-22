@@ -9,7 +9,7 @@ class UploadService
     public function __construct()
     {
         if (!is_dir($this::$_UPLOAD_DIR)) {
-            mkdir($this::$_UPLOAD_DIR, 0777, true);
+            mkdir($this::$_UPLOAD_DIR, 0755, true);
         }
     }
 
@@ -32,7 +32,7 @@ class UploadService
         }
 
         $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $fileName = uniqid('avatar_', true) . '.' . $ext;
+        $fileName = bin2hex(random_bytes(16)) . '.' . $ext;
 
         $fullPath = $this::$_UPLOAD_DIR . $fileName;
 

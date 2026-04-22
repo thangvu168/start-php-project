@@ -16,12 +16,8 @@ class AuthController extends Controller
   {
     $this->view('auth/login', [
       'title' => 'Login',
-      'error' => $_SESSION['error'] ?? '',
-      'success' => $_SESSION['success'] ?? '',
-      'old' => [],
+      'scripts' => ['/assets/js/pages/login.js'],
     ], 'auth');
-
-    unset($_SESSION['error'], $_SESSION['success']);
   }
 
   public function showLoginForm(): void
@@ -59,11 +55,6 @@ class AuthController extends Controller
     $user = $this->authService->login($email, $password);
 
     if (!$user) {
-      error_log('[LOGIN FAILED] Invalid credentials: ' . json_encode([
-        'email' => $email,
-        'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-      ]));
-
       $this->json([
         'success' => false,
         'message' => 'Email hoặc mật khẩu không đúng',
@@ -91,8 +82,7 @@ class AuthController extends Controller
   {
     $this->view('auth/register', [
       'title' => 'Register',
-      'error' => '',
-      'old' => [],
+      'scripts' => ['/assets/js/pages/register.js'],
     ], 'auth');
   }
 
@@ -110,6 +100,14 @@ class AuthController extends Controller
     ];
 
     $errors = [];
+
+    if ($data['first_name'] === '') {
+      $errors['first_name'] = 'Họ là bắt buộc';
+    }
+
+    if ($data['last_name'] === '') {
+      $errors['last_name'] = 'Tên là bắt buộc';
+    }
 
     if ($data['username'] === '') {
       $errors['username'] = 'Tên đăng nhập là bắt buộc';

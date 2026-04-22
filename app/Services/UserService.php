@@ -12,7 +12,9 @@ class UserService
             return null;
         }
 
-        return User::fromArray($data)->toArray();
+        $user = User::fromArray($data)->toArray();
+        unset($user['password']);
+        return $user;
     }
 
     public function updateProfile(

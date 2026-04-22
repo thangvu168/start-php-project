@@ -1,15 +1,9 @@
 <?php
 $avatar = $user['avatar'] ?? '/assets/image/default_avatar.webp';
-$GLOBALS['show_page_header'] = true;
-$GLOBALS['page_title'] = 'Hồ sơ';
-$GLOBALS['back_url'] = '/';
-$GLOBALS['buttons'] = [
-    ['text' => 'Chỉnh sửa', 'class' => 'btn-primary', 'id' => 'edit-profile-btn']
-];
 ?>
 
-<div class="profile-container">
-    <div class="profile-card">
+<div class="container">
+    <div class="card">
         <div class="profile-grid">
             <div class="avatar-column">
                 <div class="avatar-wrapper">
@@ -42,23 +36,24 @@ $GLOBALS['buttons'] = [
 
 <!-- Modal -->
 <div id="editProfileModal" class="modal hidden">
-    <div class="modal__overlay"></div>
+    <div class="modal__overlay" data-close="true"></div>
     <div class="modal__content">
-        <div class="modal__title">
-            <h2>Chỉnh sửa thông tin cá nhân</h2>
-            <button type="button" class="modal-close" id="close-modal-btn">&times;</button>
+        <div class="modal__header">
+            <strong class="modal__title">Chỉnh sửa thông tin cá nhân</strong>
+            <button type="button" class="modal__close" id="btnCloseModal" data-close="true">&times;</button>
         </div>
         <form id="editProfileForm" class="modal__body" action="/profile" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($_SESSION['_csrf_token'] ?? '') ?>">
-            <div class="avatar-wrapper" style="justify-content: center; display: flex; margin-bottom: 16px;">
-                <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar" class="avatar-image" style="width: 96px; height: 96px; object-fit: cover; border-radius: 50%; border: 2px solid #eee;" />
-                <button type="button" class="avatar-edit-btn" id="change-avatar-btn" style="margin-left: -36px; margin-top: 56px; background: #fff; border-radius: 50%; border: 1px solid #ccc; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                </button>
-                <input type="file" id="avatarInput" name="avatar" style="display: none;">
+            <div style="display: flex; justify-content: center; margin-bottom: 16px;">
+                <div class="avatar-wrapper">
+                    <img src="<?= htmlspecialchars($avatar) ?>" alt="Avatar" class="avatar-image" />
+                    <button type="button" class="avatar-edit-btn" id="btnChangeAvatar">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                    <input type="file" id="avatarInput" name="avatar" style="display: none;">
+                </div>
             </div>
             <p class="js-form-message" style="display:none;"></p>
             <div class="form-grid">
@@ -107,9 +102,23 @@ $GLOBALS['buttons'] = [
                 </div>
             </div>
             <div class="modal__footer">
-                <button type="button" class="btn btn-secondary" id="cancel-btn btn">Hủy</button>
-                <button type="submit" class="btn btn-primary">Lưu</button>
+                <button type="button" class="btn btn-secondary" id="btnCancel" data-close="true">Hủy</button>
+                <button type="submit" class="btn btn-primary" id="btnSaveProfile">Lưu</button>
             </div>
         </form>
+    </div>
+</div>
+
+<div id="modalProfileError" class="modal hidden">
+    <div class="modal__overlay" data-close="true"></div>
+    <div class="modal__content">
+        <div class="modal__header">
+            <strong class="modal__title">Thông báo lỗi</strong>
+            <button type="button" class="modal__close" data-close="true">&times;</button>
+        </div>
+        <div class="modal__body"></div>
+        <div class="modal__footer">
+            <button type="button" class="btn btn-primary" data-close="true">Đóng</button>
+        </div>
     </div>
 </div>

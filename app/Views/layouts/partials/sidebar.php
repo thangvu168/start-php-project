@@ -32,7 +32,7 @@
     </div>
 
     <!-- Logout -->
-    <div class="sidebar__logout" id="sidebar__logout">
+    <div id="btnOpenModalLogout" class="sidebar__logout" id="sidebar__logout">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <path fill="currentColor" d="m16.56 5.44l-1.45 1.45A5.97 5.97 0 0 1 18 12a6 6 0 0 1-6 6a6 6 0 0 1-6-6c0-2.17 1.16-4.06 2.88-5.12L7.44 5.44A7.96 7.96 0 0 0 4 12a8 8 0 0 0 8 8a8 8 0 0 0 8-8c0-2.72-1.36-5.12-3.44-6.56M13 3h-2v10h2" />
         </svg>
@@ -40,28 +40,20 @@
     </div>
 </div>
 
-<div id="logoutModal" class="modal hidden">
-    <div class="modal__overlay"></div>
+<div id="modalConfirmLogout" class="modal hidden">
+    <div class="modal__overlay" data-close=true></div>
 
     <div class="modal__content">
-
-        <!-- CSRF token -->
-        <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
-
-        <h3 class="modal__title">Xác nhận đăng xuất</h3>
-
+        <div class="modal__header">
+            <strong class="modal__title">Xác nhận đăng xuất</strong>
+            <button type="button" class="modal__close" data-close="true">&times;</button>
+        </div>
         <div class="modal__body">
             <p>Bạn có chắc chắn muốn đăng xuất không?</p>
         </div>
-
         <div class="modal__footer">
-            <button type="button" class="btn" id="cancelLogoutBtn">
-                Đóng
-            </button>
-
-            <button type="button" class="btn btn-primary" id="confirmLogoutBtn">
-                Đăng xuất
-            </button>
+            <button type="button" class="btn" data-close="true">Đóng</button>
+            <button type="button" class="btn btn-primary" id="btnConfirmLogout">Đăng xuất</button>
         </div>
     </div>
 </div>

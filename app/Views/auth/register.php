@@ -12,8 +12,6 @@
         <h1 class="auth__title">Đăng kí</h1>
         <p class="auth__subtitle">Tạo tài khoản mới và bắt đầu sử dụng.</p>
 
-        <!-- <p class="js-form-message" style="display:none;"></p> -->
-
         <div class="form__inner">
           <div class="field">
             <div class="label">
@@ -76,7 +74,7 @@
           </div>
 
           <div style="width: 100%; margin-top: 20px;">
-            <button type="submit" class="btn btn-primary">Đăng kí</button>
+            <button id="btnRegister" type="submit" class="btn btn-primary">Đăng kí</button>
           </div>
         </div>
       </form>
@@ -85,19 +83,17 @@
   </div>
 </div>
 
-<div id="errorModal" class="modal hidden">
-  <div class="modal__overlay"></div>
+<div id="modalRegisterError" class="modal hidden">
+  <div class="modal__overlay" data-close=true></div>
 
   <div class="modal__content">
-    <h3 class="modal__title">Thông báo lỗi</h3>
-
-    <div class="modal__body">
+    <div class="modal__header">
+      <strong class="modal__title">Thông báo lỗi</strong>
+      <button type="button" class="modal__close" data-close="true">&times;</button>
     </div>
-
+    <div class="modal__body"></div>
     <div class="modal__footer">
-      <button type="button" class="btn btn-primary" id="closeModalBtn">
-        Đóng
-      </button>
+      <button type="button" class="btn btn-primary" data-close="true">Đóng</button>
     </div>
   </div>
 </div>

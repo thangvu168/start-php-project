@@ -29,7 +29,7 @@ class ErrorHandler
             $message = $statusCode >= 500 ? 'Lỗi máy chủ' : $exception->getMessage();
 
 
-            error_log('[REGISTER ERROR] ' . json_encode([
+            error_log('[EXCEPTION] ' . json_encode([
                 'error' => $exception->getMessage(),
                 'trace' => $exception->getTraceAsString(),
                 'ip' => $_SERVER['REMOTE_ADDR'] ?? null,

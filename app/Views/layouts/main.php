@@ -7,6 +7,7 @@
     <title><?= htmlspecialchars($title ?? 'Application') ?></title>
     <link rel="stylesheet" href="/assets/css/global.css">
     <link rel="stylesheet" href="/assets/css/main.css">
+    <meta name="_csrf_token" content="<?= htmlspecialchars($csrf_token ?? '') ?>">
 </head>
 
 <body>
@@ -25,8 +26,14 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <script src="/assets/js/sidebar.js"></script>
-    <script src="/assets/js/profile.js"></script>
+    <script src="/assets/js/components/modal.js"></script>
+    <script src="/assets/js/components/form.js"></script>
+    <script src="/assets/js/modules/auth.js"></script>
+    <script src="/assets/js/pages/sidebar.js"></script>
+    <?php foreach ($scripts ?? [] as $script): ?>
+    <script src="<?= htmlspecialchars($script) ?>"></script>
+    <?php endforeach; ?>
+    <script src="/assets/js/app.js"></script>
 </body>
 
 </html>

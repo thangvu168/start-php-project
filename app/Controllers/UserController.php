@@ -25,21 +25,20 @@ class UserController extends Controller
             throw new HttpException('User not found', 404);
         }
 
-        $success = $_SESSION['success'] ?? null;
-        unset($_SESSION['success']);
-
-        $error = $_SESSION['error'] ?? null;
-        unset($_SESSION['error']);
-
-        $errors = $_SESSION['errors'] ?? [];
-        unset($_SESSION['errors']);
-
         $this->view('profile/index', [
             'title'   => 'Profile',
             'user'    => $user,
-            'success' => $success,
-            'error'   => $error,
-            'errors'  => $errors
+            'scripts' => [
+                '/assets/js/modules/user.js',
+                '/assets/js/pages/profile.js',
+            ],
+            'page_header' => [
+                'title'    => 'Hồ sơ',
+                'back_url' => '/',
+                'buttons'  => [
+                    ['text' => 'Chỉnh sửa', 'class' => 'btn-primary', 'id' => 'btnEditProfile'],
+                ],
+            ],
         ]);
     }
 

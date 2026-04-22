@@ -8,6 +8,7 @@ CREATE TABLE `users` (
     `email` varchar(50) NOT NULL,
     `password` varchar(255) NOT NULL,
     `avatar` varchar(255) DEFAULT NULL,
+    `phone` varchar(20) DEFAULT NULL,
     `created_at` datetime NOT NULL DEFAULT current_timestamp(),
     `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
     PRIMARY KEY (`id`),

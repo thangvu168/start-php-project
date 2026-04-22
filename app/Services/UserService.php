@@ -19,11 +19,13 @@ class UserService
         int $id,
         string $firstName,
         string $lastName,
+        string $phone,
         ?string $avatarPath = null
     ) {
         $data = [
             'first_name' => $firstName,
             'last_name'  => $lastName,
+            'phone'      => $phone,
         ];
 
         if ($avatarPath !== null) {

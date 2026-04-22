@@ -1,150 +1,106 @@
 (function ($) {
-  function clearErrors($form) {
-    $form.find(".js-field-error").text("");
-    hideMessage($form);
-  }
+  $(document).ready(function () {
+    console.log("Profile JS loaded");
 
-  function setFieldError($form, field, message) {
-    $form
-      .find('.js-field-error[data-field="' + field + '"]')
-      .text(message || "");
-  }
-
-  function showMessage($form, message, isSuccess) {
-    var $message = $form.find(".js-form-message");
-    $message
-      .text(message || "")
-      .css("color", isSuccess ? "green" : "red")
-      .show();
-  }
-
-  function hideMessage($form) {
-    $form.find(".js-form-message").text("").hide();
-  }
-
-  function validateProfile($form) {
-    var errors = {};
-    var firstName = $.trim($form.find('[name="first_name"]').val());
-    var lastName = $.trim($form.find('[name="last_name"]').val());
-    var avatar = $form.find('[name="avatar"]')[0].files[0];
-    var allowedTypes = ["image/jpeg", "image/png", "image/webp"];
-    var maxSize = 2 * 1024 * 1024;
-
-    if (!firstName) {
-      errors.first_name = "First name is required";
-    }
-
-    if (!lastName) {
-      errors.last_name = "Last name is required";
-    }
-
-    if (avatar) {
-      if ($.inArray(avatar.type, allowedTypes) === -1) {
-        errors.avatar = "Avatar must be jpeg, png or webp";
-      } else if (avatar.size > maxSize) {
-        errors.avatar = "Avatar size must be less than 2MB";
-      }
-    }
-
-    return errors;
-  }
-
-  function renderErrors($form, errors) {
-    clearErrors($form);
-
-    if (!errors) {
-      return;
-    }
-
-    $.each(errors, function (field, message) {
-      setFieldError($form, field, message);
+    // Modal handling
+    $("#edit-profile-btn").on("click", function () {
+      console.log("Edit button clicked");
+      console.log("Modal element exists:", $("#editProfileModal").length);
+      $("#editProfileModal").removeClass("hidden");
+      console.log(
+        "Has hidden class after remove:",
+        $("#editProfileModal").hasClass("hidden"),
+      );
     });
-  }
 
-  function bindAvatarPreview() {
-    $("#avatarInput").on("change", function (event) {
-      var file = event.target.files[0];
-      if (!file) {
-        return;
-      }
-
-      if (!file.type.startsWith("image/")) {
-        return;
-      }
-
-      var imageUrl = URL.createObjectURL(file);
-      $("#avatarPreview").attr("src", imageUrl);
+    $("#close-modal-btn, #cancel-btn").on("click", function () {
+      console.log("Close button clicked");
+      $("#editProfileModal").addClass("hidden");
     });
-  }
 
-  function submitProfileForm($form) {
-    $form.on("submit", function (event) {
-      event.preventDefault();
+    // Close modal when clicking outside
+    $(window).on("click", function (event) {
+      if (event.target == $("#editProfileModal")[0]) {
+        $("#editProfileModal").addClass("hidden");
+      }
+    });
+
+    // Avatar change
+    $("#change-avatar-btn").on("click", function () {
+      $("#avatarInput").click();
+    });
+
+    $("#avatarInput").on("change", function () {
+      var file = this.files[0];
+      if (file) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          $(".avatar-image").attr("src", e.target.result);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Form validation and submission
+    function clearErrors($form) {
+      $form.find(".js-field-error").text("");
+      hideMessage($form);
+    }
+
+    function setFieldError($form, field, message) {
+      $form
+        .find('.js-field-error[data-field="' + field + '"]')
+        .text(message || "");
+    }
+
+    function showMessage($form, message, isSuccess) {
+      var $message = $form.find(".js-form-message");
+      $message
+        .text(message || "")
+        .css("color", isSuccess ? "green" : "red")
+        .show();
+    }
+
+    function hideMessage($form) {
+      $form.find(".js-form-message").text("").hide();
+    }
+
+    function validateProfile($form) {
+      var errors = {};
+      var firstName = $.trim($form.find('[name="first_name"]').val());
+      var lastName = $.trim($form.find('[name="last_name"]').val());
+      var phone = $.trim($form.find('[name="phone"]').val());
+
+      if (!firstName) {
+        errors.first_name = "Họ là bắt buộc";
+      }
+
+      if (!lastName) {
+        errors.last_name = "Tên là bắt buộc";
+      }
+
+      if (phone && !/^[\+]?[0-9\-\(\)\s]+$/.test(phone)) {
+        errors.phone = "Số điện thoại không hợp lệ";
+      }
+
+      return errors;
+    }
+
+    $("#editProfileForm").on("submit", function (e) {
+      e.preventDefault();
+      var $form = $(this);
+      clearErrors($form);
 
       var errors = validateProfile($form);
       if (Object.keys(errors).length > 0) {
-        renderErrors($form, errors);
-        showMessage($form, "Please check your input", false);
+        for (var field in errors) {
+          setFieldError($form, field, errors[field]);
+        }
         return;
       }
 
-      clearErrors($form);
-
-      var formData = new FormData($form[0]);
-
-      $.ajax({
-        url: $form.attr("action"),
-        method: $form.attr("method") || "POST",
-        data: formData,
-        processData: false,
-        contentType: false,
-        dataType: "json",
-        headers: {
-          Accept: "application/json",
-        },
-      })
-        .done(function (response) {
-          if (!response || response.success !== true) {
-            showMessage(
-              $form,
-              (response && response.message) || "Request failed",
-              false,
-            );
-            renderErrors($form, response ? response.errors : {});
-            return;
-          }
-
-          showMessage(
-            $form,
-            response.message || "Update profile success",
-            true,
-          );
-        })
-        .fail(function (xhr) {
-          var payload = xhr.responseJSON || {};
-
-          if (payload.redirect) {
-            window.location.href = payload.redirect;
-            return;
-          }
-
-          showMessage(
-            $form,
-            payload.message || "Server error. Please try again.",
-            false,
-          );
-          renderErrors($form, payload.errors || {});
-        });
+      // Submit form
+      $form[0].submit();
     });
-  }
-
-  $(function () {
-    var $profileForm = $("#profileForm");
-    if (!$profileForm.length) {
-      return;
-    }
-
-    bindAvatarPreview();
-    submitProfileForm($profileForm);
   });
 })(jQuery);

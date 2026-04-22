@@ -10,6 +10,7 @@ class User extends BaseModel
     public string $email,
     public string $password,
     public ?string $avatar,
+    public ?string $phone,
     public ?string $regDate = null,
     ?string $createdAt = null,
     ?string $updatedAt = null,
@@ -34,6 +35,7 @@ class User extends BaseModel
       email: $data['email'],
       password: $data['password'],
       avatar: $data['avatar'] ?? null,
+      phone: $data['phone'] ?? null,
       createdAt: self::resolveCreatedAt($data),
       updatedAt: self::resolveUpdatedAt($data),
     );
@@ -50,6 +52,7 @@ class User extends BaseModel
       'email' => $this->email,
       'password' => $this->password,
       'avatar' => $this->avatar,
+      'phone' => $this->phone,
       'created_at' => $this->createdAt,
       'updated_at' => $this->updatedAt,
     ];

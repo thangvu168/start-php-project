@@ -11,10 +11,15 @@
   --muted: #6b7280;
 
   --bg: #f6f6f6;
+  --bg-dark: #04101f;
   --border: #ccc;
 
-  --focus-shadow: rgba(66, 184, 20, 0.3);
-  --focus-border: rgba(66, 184, 20, 0.7);
+  --focus-shadow-green: rgba(66, 184, 20, 0.3);
+  --focus-border-green: rgba(66, 184, 20, 0.7);
+
+  --hover-bg: rgba(255, 255, 255, 0.1);
 
   --primary-hover: #1e5fb8;
+  --primary-dark: #1e5fb8;
+  --secondary-dark: #6b7280;
 }

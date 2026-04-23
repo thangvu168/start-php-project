@@ -3,3 +3,8 @@ public/uploads/
 .gitnexus/
 AGENTS.md
 CLAUDE.md
+
+/vendor/
+.env
+.env.*
+!.env.example

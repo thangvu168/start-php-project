@@ -36,4 +36,25 @@ class UserService
 
         return $this->userRepository->update($id, $data);
     }
+
+    public function changePassword(int $id, string $hashPassword): bool
+    {
+        $userData = $this->userRepository->getById($id);
+
+        if (!$userData) {
+            return false;
+        }
+
+        return $this->userRepository->update($id, ['password' => $hashPassword]);
+    }
+
+    public function userExists(string $username, string $email): bool
+    {
+        $users = $this->userRepository->execute(
+            "SELECT * FROM users WHERE username = ? OR email = ?",
+            [$username, $email]
+        );
+
+        return !empty($users);
+    }
 }

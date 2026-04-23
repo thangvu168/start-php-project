@@ -6,8 +6,10 @@ if (!isset($_SESSION['_csrf_token'])) {
     $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
 }
 
-require_once __DIR__ . '/../config.php';
+require __DIR__ . '/../vendor/autoload.php';
+
 require_once __DIR__ . '/../core/bootstrap.php';
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../app/bootstrap.php';
 
 ErrorHandler::register();

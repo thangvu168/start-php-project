@@ -3,13 +3,16 @@
 class AuthController extends Controller
 {
   private AuthService $authService;
+  private UserService $userService;
 
 
   public function __construct()
   {
     $db = Database::getConnection();
     $userRepository = new UserRepository($db);
-    $this->authService = new AuthService($userRepository);
+    $passwordResetRepository = new PasswordResetRepository($db);
+    $this->authService = new AuthService($userRepository, $passwordResetRepository);
+    $this->userService = new UserService($userRepository);
   }
 
   public function showLogin(): void
@@ -147,6 +150,14 @@ class AuthController extends Controller
       ], 422);
     }
 
+    // Check user name and email already exist
+    if ($this->userService->userExists($data['username'], $data['email'])) {
+      $this->json([
+        'success' => false,
+        'message' => 'Tên đăng nhập hoặc email đã tồn tại',
+      ], 422);
+    }
+
     try {
       $this->authService->register($data);
 
@@ -184,5 +195,98 @@ class AuthController extends Controller
     $_SESSION = [];
     session_destroy();
     $this->redirect('/login');
+  }
+
+  public function showForgot(): void
+  {
+    $this->view('auth/forgot', [
+      'title' => 'Quên mật khẩu',
+      'scripts' => ['/assets/js/pages/forgot.js'],
+    ], 'auth');
+  }
+
+  public function sendForgot(): void
+  {
+    $this->validateCsrfToken();
+
+    $email = trim($_POST['email'] ?? '');
+    $captcha = $_POST['g-recaptcha-response'] ?? '';
+
+    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $this->json(['success' => false, 'message' => 'Email không hợp lệ'], 422);
+    }
+
+    if (!empty(config('recaptcha.sitekey'))) {
+      $ok = $this->authService->verifyRecaptcha($captcha);
+      if (!$ok) {
+        $this->json(['success' => false, 'message' => 'Captcha không hợp lệ'], 422);
+      }
+    }
+
+    $token = $this->authService->createResetToken($email);
+
+
+    if (!empty($token)) {
+      $link = sprintf('%s/password/reset?token=%s', $this->getBaseUrl(), urlencode($token));
+      $viewFile = __DIR__ . '/../Views/emails/password_reset.php';
+      ob_start();
+      $link = $link;
+      require $viewFile;
+      $body = ob_get_clean();
+      $mailer = new MailService();
+      $mailer->send($email, 'Yêu cầu đặt lại mật khẩu', $body);
+      $this->json([
+        'success' => true,
+        'message' => 'Kiểm tra email của bạn để nhận đường dẫn đặt lại mật khẩu.',
+      ]);
+    } else {
+      $this->json(['success' => false, 'message' => 'Tài khoản không tồn tại. Vui lòng thử lại sau.'], 400);
+    }
+  }
+
+  public function showReset(): void
+  {
+    $token = $_GET['token'] ?? '';
+    $this->view('auth/reset', [
+      'title' => 'Đặt lại mật khẩu',
+      'token' => $token,
+      'scripts' => ['/assets/js/pages/reset.js'],
+    ], 'auth');
+  }
+
+  public function reset(): void
+  {
+    $this->validateCsrfToken();
+
+    $token = $_POST['token'] ?? '';
+    $password = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
+
+    if ($password === '' || strlen($password) < 6) {
+      $this->json(['success' => false, 'message' => 'Mật khẩu không hợp lệ', 'errors' => ['password' => 'Mật khẩu phải có ít nhất 6 ký tự']], 422);
+    }
+
+    if ($password !== $confirm) {
+      $this->json(['success' => false, 'message' => 'Xác nhận mật khẩu không khớp', 'errors' => ['confirm_password' => 'Xác nhận mật khẩu không đúng']], 422);
+    }
+
+    $userId = $this->authService->verifyToken($token);
+    if (!$userId) {
+      $this->json(['success' => false, 'message' => 'Token không hợp lệ hoặc đã hết hạn'], 400);
+    }
+
+    $hashed = password_hash($password, PASSWORD_DEFAULT);
+    $this->userService->changePassword($userId, $hashed);
+
+    $this->authService->consumeToken($token);
+
+    $this->json(['success' => true, 'message' => 'Mật khẩu đã được cập nhật. Vui lòng đăng nhập.']);
+  }
+
+  private function getBaseUrl(): string
+  {
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    return $scheme . '://' . $host;
   }
 }

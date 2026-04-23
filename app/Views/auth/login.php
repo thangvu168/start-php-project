@@ -26,7 +26,7 @@
 
           <div class="field">
             <div class="label">
-              <span class="right auth__link">Quên mật khẩu?</span>
+              <a href="/password/forgot" class="right auth__link">Quên mật khẩu?</a>
               <label for="password">Mật khẩu</label>
             </div>
             <div class="input">

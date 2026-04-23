@@ -18,13 +18,122 @@ class Repository
     return $result->fetch_assoc() ?: null;
   }
 
-  public function getAll(): array
-  {
+  /**
+   * Example:
+   * $filters = [
+   *   ['column' => 'status', 'op' => '=', 'value' => 'active'],
+   *   ['column' => 'created_at', 'op' => '>', 'value' => '2024-01-01'],
+   *   ['column' => 'id', 'op' => 'IN', 'value' => [1, 2, 3]],
+   *   ['column' => 'price', 'op' => 'BETWEEN', 'value' => [10, 100]],
+   * ];
+   * $sort = ['column' => 'created_at', 'direction' => 'DESC'];
+   * $limit = 10;
+   * $offset = 20;
+   * 
+   * SQL = "SELECT * FROM table WHERE status = 'active' AND created_at > '2024-01-01' AND id IN (1, 2, 3) AND price BETWEEN 10 AND 100 ORDER BY created_at DESC LIMIT 10 OFFSET 20"
+   */
+  public function getAll(
+    array $filters = [],
+    ?array $sort = null,
+    ?int $limit = null,
+    ?int $offset = null
+  ): array {
     $sql = "SELECT * FROM {$this->table}";
-    $result = $this->db->query($sql);
-    // Flag MYSQLI_ASSOC: return an associative array where the keys are the column names
+    $params = [];
+    $types = [];
+
+    if (!empty($filters)) {
+      $conditions = [];
+
+      foreach ($filters as $filter) {
+        $column = $filter['column'] ?? null;
+        $op     = strtoupper($filter['op'] ?? '=');
+        $value  = $filter['value'] ?? null;
+
+        if (!$column) {
+          continue;
+        }
+
+        switch ($op) {
+          case '=':
+          case '>':
+          case '<':
+          case '>=':
+          case '<=':
+          case '!=':
+            $conditions[] = "$column $op ?";
+            $params[] = $value;
+            $types[] = $this->detectType($value);
+            break;
+
+          case 'LIKE':
+            $conditions[] = "$column LIKE ?";
+            $params[] = $value;
+            $types[] = 's';
+            break;
+
+          case 'IN':
+            // Ex: ['column' => 'id', 'op' => 'IN', 'value' => [1, 2, 3]]
+            if (is_array($value) && count($value)) {
+              $placeholders = implode(',', array_fill(0, count($value), '?'));
+              $conditions[] = "$column IN ($placeholders)";
+              foreach ($value as $v) {
+                $params[] = $v;
+                $types[] = $this->detectType($v);
+              }
+            }
+            break;
+
+          case 'BETWEEN':
+            if (is_array($value) && count($value) === 2) {
+              $conditions[] = "$column BETWEEN ? AND ?";
+              $params[] = $value[0];
+              $params[] = $value[1];
+              $types[] = $this->detectType($value[0]);
+              $types[] = $this->detectType($value[1]);
+            }
+            break;
+        }
+      }
+
+      if ($conditions) {
+        $sql .= " WHERE " . implode(" AND ", $conditions);
+      }
+    }
+
+    if (!empty($sort)) {
+      $column = $sort['column'] ?? null;
+      $dir    = strtoupper($sort['dir'] ?? 'ASC');
+
+      if ($column) {
+        $sql .= " ORDER BY $column $dir";
+      }
+    }
+
+    if ($limit !== null) {
+      $sql .= " LIMIT ?";
+      $params[] = $limit;
+      $types[] = 'i';
+
+      if ($offset !== null) {
+        $sql .= " OFFSET ?";
+        $params[] = $offset;
+        $types[] = 'i';
+      }
+    }
+
+    $stmt = $this->db->prepare($sql);
+
+    if (!empty($params)) {
+      $stmt->bind_param(implode('', $types), ...$params);
+    }
+
+    $stmt->execute();
+    $result = $stmt->get_result();
+
     return $result->fetch_all(MYSQLI_ASSOC);
   }
+
 
   public function create(array $data): int
   {
@@ -70,7 +179,38 @@ class Repository
       $stmt->bind_param($types, ...$params);
     }
     $stmt->execute();
+
+    // Nếu câu lệnh là SELECT, trả về kết quả, các câu lệnh trả lại thông tin qua array
+    // affected_rows: số dòng bị ảnh hưởng, insert_id: id của bản ghi mới tạo (nếu có)
+    $meta = $stmt->result_metadata();
+
+    // If there is no metadata, the statement did not produce a result set
+    if ($meta === false) {
+      return [
+        'affected_rows' => $stmt->affected_rows,
+        'insert_id' => $stmt->insert_id,
+      ];
+    }
+
+    $fields = $meta->fetch_fields();
+    if (!is_array($fields) || count($fields) === 0) {
+      return [
+        'affected_rows' => $stmt->affected_rows,
+        'insert_id' => $stmt->insert_id,
+      ];
+    }
+
     $result = $stmt->get_result();
     return $result->fetch_all(MYSQLI_ASSOC);
+  }
+
+  // Kiểm tra type của giá trị để bind_param đúng loại
+  private function detectType($value): string
+  {
+    return match (true) {
+      is_int($value) => 'i',
+      is_float($value) => 'd',
+      default => 's',
+    };
   }
 }

@@ -10,6 +10,12 @@ class ErrorHandler
 
     public static function handleException(Throwable $exception): void
     {
+        error_log('[EXCEPTION] ' . json_encode([
+            'error' => $exception->getMessage(),
+            'trace' => $exception->getTraceAsString(),
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
+        ]));
+
         $statusCode = 500;
 
         if ($exception instanceof HttpException) {
@@ -27,14 +33,6 @@ class ErrorHandler
             header('Content-Type: application/json; charset=utf-8');
 
             $message = $statusCode >= 500 ? 'Lỗi máy chủ' : $exception->getMessage();
-
-
-            error_log('[EXCEPTION] ' . json_encode([
-                'error' => $exception->getMessage(),
-                'trace' => $exception->getTraceAsString(),
-                'ip' => $_SERVER['REMOTE_ADDR'] ?? null,
-            ]));
-
 
             echo json_encode([
                 'success' => false,

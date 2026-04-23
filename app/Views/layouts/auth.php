@@ -16,11 +16,14 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <?php if (!empty(config('recaptcha.sitekey'))): ?>
+        <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+    <?php endif; ?>
     <script src="/assets/js/components/modal.js"></script>
     <script src="/assets/js/components/form.js"></script>
     <script src="/assets/js/modules/auth.js"></script>
     <?php foreach ($scripts ?? [] as $script): ?>
-    <script src="<?= htmlspecialchars($script) ?>"></script>
+        <script src="<?= htmlspecialchars($script) ?>"></script>
     <?php endforeach; ?>
     <script src="/assets/js/app.js"></script>
 </body>

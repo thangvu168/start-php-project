@@ -42,9 +42,34 @@ App.Auth = (function () {
     });
   }
 
+  function forgotPassword({ email, captcha }) {
+    return $.ajax({
+      url: "/password/forgot",
+      method: "POST",
+      data: {
+        email: email,
+        "g-recaptcha-response": captcha || "",
+      },
+    });
+  }
+
+  function resetPassword({ token, password, confirm_password }) {
+    return $.ajax({
+      url: "/password/reset",
+      method: "POST",
+      data: {
+        token: token,
+        password: password,
+        confirm_password: confirm_password,
+      },
+    });
+  }
+
   return {
     login,
     register,
     logout,
+    forgotPassword,
+    resetPassword,
   };
 })();

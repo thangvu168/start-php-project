@@ -1,13 +1,14 @@
 window.App = window.App || {};
 
 App.Auth = (function () {
-  function login({ email, password }) {
+  function login({ email, password, remember_me }) {
     return $.ajax({
       url: "login",
       method: "POST",
       data: {
         email: email,
         password: password,
+        remember_me: remember_me,
       },
     });
   }

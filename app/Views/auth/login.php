@@ -37,7 +37,7 @@
 
           <div style="position: relative; width: 100%;">
             <div style="position: absolute; left: 0; top: 0; display: flex; align-items: center;">
-              <input type="checkbox" name="saved">
+              <input type="checkbox" name="remember_me">
               <span style="font-size: 13px;">&nbsp; Giữ tôi luôn đăng nhập</span>
             </div>
 

@@ -23,12 +23,6 @@
                         <small class="js-field-error error-message" data-field="email" style="color:red;"></small>
                     </div>
 
-                    <?php if (!empty(config('recaptcha.sitekey'))): ?>
-                        <div style="margin-top:10px;">
-                            <div class="g-recaptcha" data-sitekey="<?= config('recaptcha.sitekey') ?>" data-action='password_reset'></div>
-                        </div>
-                    <?php endif; ?>
-
                     <div style="width: 100%; margin-top: 20px;">
                         <button id="btnForgot" type="submit" class="btn btn-primary">Gửi yêu cầu</button>
                     </div>

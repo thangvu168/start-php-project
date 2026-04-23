@@ -63,7 +63,8 @@ class Router
   {
     $next = $cb;
     foreach (array_reverse($middlewares) as $middlewareClass) {
-      $middleware = new $middlewareClass();
+      // $middleware = new $middlewareClass();
+      $middleware = $this->resolveMiddleware($middlewareClass);
 
       // Closure - Anonymous function
       // use - Capture variable
@@ -73,5 +74,15 @@ class Router
     }
 
     return $next;
+  }
+
+  // Hỗ trợ tìm kiếm các token trong database để xác thực người dùng
+  private function resolveMiddleware(string $class)
+  {
+    $db = Database::getConnection();
+
+    return new $class(
+      new RememberTokenRepository($db),
+    );
   }
 }

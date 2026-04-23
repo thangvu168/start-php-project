@@ -2,29 +2,40 @@
 
 class AuthMiddleware implements Middleware
 {
+
+    public function __construct(
+        private RememberTokenRepository $rememberTokenRepository,
+    ) {}
+
     public function handle(callable $next)
     {
-        if (!isset($_SESSION['logged_in']) || $_SESSION['logged_in'] !== true || !isset($_SESSION['user_id'])) {
-            $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
-            $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
-            $isJsonRequest = strtolower($requestedWith) === 'xmlhttprequest' || str_contains($accept, 'application/json');
-
-            if ($isJsonRequest) {
-                http_response_code(401);
-                header('Content-Type: application/json; charset=utf-8');
-                echo json_encode([
-                    'success' => false,
-                    'message' => 'Không được phép',
-                    'errors' => [],
-                    'redirect' => '/login',
-                ]);
-                exit;
-            }
-
-            header('Location: /login');
-            exit;
+        error_log("AuthMiddleware: Checking authentication for request URI: {$_SERVER['REQUEST_URI']}");
+        if (!empty($_SESSION['user_id'])) {
+            error_log("User is authenticated via session: user_id={$_SESSION['user_id']}");
+            return $next();
         }
 
-        return $next();
+        if (!empty($_COOKIE['remember_token'])) {
+            $token = hash('sha256', $_COOKIE['remember_token']);
+
+            error_log("Checking remember token: token={$token}");
+
+            $record = $this->rememberTokenRepository->findValidToken($token);
+
+            if ($record && strtotime($record['expires_at']) > time()) {
+                $_SESSION['user_id'] = $record['user_id'];
+                $_SESSION['logged_in'] = true;
+
+                return $next();
+            }
+        }
+
+        return $this->unauthorized();
+    }
+
+    private function unauthorized()
+    {
+        header('Location: /login');
+        exit;
     }
 }

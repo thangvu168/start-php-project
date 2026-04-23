@@ -11,20 +11,18 @@
 
 <body>
     <div style="display:flex;align-items:center;justify-content:center;padding:60px 16px;">
-        <div style="max-width:720px;width:100%;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(18,22,26,0.08);padding:36px;text-align:center;">
-            <div style="font-size:54px;line-height:1;margin-bottom:8px;">⚠️</div>
+        <div style="max-width:600px;width:100%;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(18,22,26,0.08);padding:36px;text-align:center;">
+            <div style="font-size:54px;line-height:1;margin-bottom:8px;">🚫</div>
             <h1 style="margin:4px 0 12px;font-size:28px;">500 — Lỗi máy chủ</h1>
-            <p style="color:#555;margin:0 0 20px;"><?= htmlspecialchars($message ?? 'Đã xảy ra lỗi bên trong hệ thống. Vui lòng thử lại sau.') ?></p>
+            <p style="color:#555;margin:0 0 20px;"><?= htmlspecialchars($message ?? 'Đã xảy ra lỗi trên máy chủ.') ?></p>
 
             <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;">
-                <div style="display:flex;gap:12px;justify-content:center;margin-top:18px;">
-                    <button id="btnBackHome" class="btn">
-                        Trang chủ
-                    </button>
-                    <button id="btnBack" class="btn btn-primary">
-                        Quay lại
-                    </button>
-                </div>
+                <button id="btnBackHome" class="btn">
+                    Trang chủ
+                </button>
+                <button id="btnBack" class="btn btn-primary">
+                    Quay lại
+                </button>
             </div>
         </div>
     </div>

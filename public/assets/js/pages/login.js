@@ -1,7 +1,10 @@
 // Handle event listeners for login page
 $(function () {
   var loginRules = {
-    email:    { required: "Email là bắt buộc", pattern: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Định dạng email không hợp lệ"] },
+    email: {
+      required: "Email là bắt buộc",
+      pattern: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Định dạng email không hợp lệ"],
+    },
     password: { required: "Mật khẩu là bắt buộc" },
   };
 
@@ -19,8 +22,9 @@ $(function () {
     App.Component.Form.clearErrors($form);
 
     App.Auth.login({
-      email:    $form.find('[name="email"]').val(),
+      email: $form.find('[name="email"]').val(),
       password: $form.find('[name="password"]').val(),
+      remember_me: $form.find('[name="remember_me"]').is(":checked"),
     })
       .then(function (response) {
         window.location.href = response.redirect || "/";

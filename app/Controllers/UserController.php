@@ -13,20 +13,11 @@ class UserController extends Controller
 
     public function showProfile(): void
     {
-        $userId = $_SESSION['user_id'] ?? null;
+        $user = $this->userService->getProfile($_SESSION['user_id']);
 
-        if ($userId === null) {
-            $this->redirect('/login');
-        }
-
-        $user = $this->userService->getProfile((int) $userId);
-
-        if ($user === null) {
-            throw new HttpException('User not found', 404);
-        }
 
         $this->view('profile/index', [
-            'title'   => 'Profile',
+            'title'   => 'Hồ sơ',
             'user'    => $user,
             'scripts' => [
                 '/assets/js/modules/user.js',
@@ -45,17 +36,6 @@ class UserController extends Controller
     public function changeProfile(): void
     {
         $this->validateCsrfToken();
-
-        $userId = $_SESSION['user_id'] ?? null;
-
-        if ($userId === null) {
-            $this->json([
-                'success' => false,
-                'message' => 'Unauthorized',
-                'errors' => [],
-                'redirect' => '/login'
-            ], 401);
-        }
 
         $firstName = trim($_POST['first_name'] ?? '');
         $lastName  = trim($_POST['last_name'] ?? '');
@@ -101,47 +81,30 @@ class UserController extends Controller
             }
         }
 
-        try {
-            $uploadService = new UploadService();
 
-            $avatarPath = null;
+        $uploadService = new UploadService();
 
-            if (!empty($_FILES['avatar']['name'])) {
-                $avatarPath = $uploadService->uploadImage($_FILES['avatar']);
-            }
+        $avatarPath = null;
 
-            // Update DB
-            $this->userService->updateProfile((int) $userId, $firstName, $lastName, $phone, $avatarPath);
-
-            $_SESSION['name'] = $firstName . ' ' . $lastName;
-            if ($avatarPath !== null) {
-                $_SESSION['avatar'] = $avatarPath;
-            }
-
-            if ($this->isJsonRequest()) {
-                $this->json([
-                    'success' => true,
-                    'message' => 'Cập nhật hồ sơ thành công',
-                    'data' => [
-                        'name' => $_SESSION['name'],
-                        'avatar' => $_SESSION['avatar'] ?? null,
-                    ]
-                ]);
-            } else {
-                $_SESSION['success'] = 'Cập nhật hồ sơ thành công';
-                $this->redirect('/profile');
-            }
-        } catch (Exception $e) {
-            if ($this->isJsonRequest()) {
-                $this->json([
-                    'success' => false,
-                    'message' => $e->getMessage(),
-                    'errors' => []
-                ], 400);
-            } else {
-                $_SESSION['error'] = $e->getMessage();
-                $this->redirect('/profile');
-            }
+        if (!empty($_FILES['avatar']['name'])) {
+            $avatarPath = $uploadService->uploadImage($_FILES['avatar']);
         }
+
+        // Update DB
+        $this->userService->updateProfile($_SESSION['user_id'], $firstName, $lastName, $phone, $avatarPath);
+
+        $_SESSION['name'] = $firstName . ' ' . $lastName;
+        if ($avatarPath !== null) {
+            $_SESSION['avatar'] = $avatarPath;
+        }
+
+        $this->json([
+            'success' => true,
+            'message' => 'Cập nhật hồ sơ thành công',
+            'data' => [
+                'name' => $_SESSION['name'],
+                'avatar' => $_SESSION['avatar'] ?? null,
+            ]
+        ]);
     }
 }

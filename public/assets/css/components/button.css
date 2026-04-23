@@ -11,6 +11,11 @@
   color: var(--text);
 }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-primary {
   background-color: var(--primary);
   border-color: var(--primary);

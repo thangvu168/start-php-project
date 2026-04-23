@@ -45,6 +45,7 @@ class View
             return;
         }
 
+        extract($data);
         require $layoutFile;
     }
 

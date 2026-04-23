@@ -16,8 +16,8 @@
     </div>
 
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
-    <?php if (!empty(config('recaptcha.sitekey'))): ?>
-        <script src="https://www.google.com/recaptcha/enterprise.js" async defer></script>
+    <?php if (!empty($recaptchaSiteKey)): ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <?php endif; ?>
     <script src="/assets/js/components/modal.js"></script>
     <script src="/assets/js/components/form.js"></script>

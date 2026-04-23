@@ -8,6 +8,15 @@ $(function () {
     password: { required: "Mật khẩu là bắt buộc" },
   };
 
+  window.onCaptchaSuccess = function (token) {
+    $("#btnLogin").prop("disabled", false);
+  };
+
+  window.onCaptchaExpired = function () {
+    $("#btnLogin").prop("disabled", true);
+    grecaptcha.reset();
+  };
+
   $("#btnLogin").on("click", function (event) {
     event.preventDefault();
 
@@ -25,12 +34,21 @@ $(function () {
       email: $form.find('[name="email"]').val(),
       password: $form.find('[name="password"]').val(),
       remember_me: $form.find('[name="remember_me"]').is(":checked"),
+      captcha: $form.find('[name="g-recaptcha-response"]').val(),
     })
       .then(function (response) {
         window.location.href = response.redirect || "/";
       })
       .catch(function (error) {
         var payload = error.responseJSON || {};
+
+        // If reload is needed (reached 3 attempts), reload the page
+        if (payload.reload) {
+          setTimeout(function () {
+            window.location.reload();
+          }, 1500);
+        }
+
         if (payload.errors) {
           App.Component.Form.renderErrors($form, payload.errors);
         }

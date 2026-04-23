@@ -16,9 +16,16 @@ class AuthController extends Controller
 
   public function showLogin(): void
   {
+    $ip = getClientIp();
+    $attemptCount = getLoginAttempts($ip);
+    $needsCaptcha = needsCaptcha($ip);
+
     $this->view('auth/login', [
       'title' => 'Login',
       'scripts' => ['/assets/js/pages/login.js'],
+      'recaptchaSiteKey' => config('recaptcha.sitekey'),
+      'needsCaptcha' => $needsCaptcha,
+      'attemptCount' => $attemptCount,
     ], 'auth');
   }
 
@@ -26,9 +33,14 @@ class AuthController extends Controller
   {
     $this->validateCsrfToken();
 
+    $ip = getClientIp();
+    getLoginAttempts($ip); // Đảm bảo session đã được khởi tạo cho IP này
+    $needsCaptcha = needsCaptcha($ip);
+
     $email = trim($_POST['email'] ?? '');
     $password = trim($_POST['password'] ?? '');
     $rememberMe = isset($_POST['remember_me']) && $_POST['remember_me'] === 'true';
+    $captchaToken = trim($_POST['g-recaptcha-response'] ?? '');
 
     $errors = [];
 
@@ -42,6 +54,15 @@ class AuthController extends Controller
       $errors['password'] = 'Mật khẩu là bắt buộc';
     }
 
+    // Check if captcha is required but not provided
+    if ($needsCaptcha && empty($captchaToken)) {
+      $this->json([
+        'success' => false,
+        'message' => 'Vui lòng hoàn thành xác minh reCAPTCHA',
+        'errors' => [],
+      ], 429);
+    }
+
     if (!empty($errors)) {
       $this->json([
         'success' => false,
@@ -50,23 +71,44 @@ class AuthController extends Controller
       ], 422);
     }
 
-    $user = $this->authService->login($email, $password, $rememberMe);
+    try {
+      $user = $this->authService->login($email, $password, $rememberMe);
 
-    session_regenerate_id(true);
+      // Login successful - reset attempts
+      resetLoginAttempts($ip);
+      session_regenerate_id(true);
 
-    // Set user session
-    $_SESSION['user_id'] = $user->id;
-    $_SESSION['email'] = $user->email;
-    $_SESSION['user_name'] = $user->username;
-    $_SESSION['name'] = $user->firstName . " " . $user->lastName;
-    $_SESSION['avatar'] = $user->avatar;
-    $_SESSION['logged_in'] = true;
+      // Set user session
+      $_SESSION['user_id'] = $user->id;
+      $_SESSION['email'] = $user->email;
+      $_SESSION['user_name'] = $user->username;
+      $_SESSION['name'] = $user->firstName . " " . $user->lastName;
+      $_SESSION['avatar'] = $user->avatar;
+      $_SESSION['logged_in'] = true;
 
-    $this->json([
-      'success' => true,
-      'message' => 'Đăng nhập thành công',
-      'redirect' => '/',
-    ]);
+      $this->json([
+        'success' => true,
+        'message' => 'Đăng nhập thành công',
+        'redirect' => '/',
+      ]);
+    } catch (HttpException $e) {
+      // Login failed - increment attempts
+      $newAttemptCount = incrementLoginAttempts($ip);
+
+      // If now >= 3 attempts, tell client to reload
+      if ($newAttemptCount >= 3) {
+        $this->json([
+          'success' => false,
+          'message' => $e->getMessage(),
+          'reload' => true,
+        ], 401);
+      } else {
+        $this->json([
+          'success' => false,
+          'message' => $e->getMessage(),
+        ], 401);
+      }
+    }
   }
 
   public function showRegister(): void

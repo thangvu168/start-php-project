@@ -18,7 +18,7 @@ return [
     ],
 
     'recaptcha' => [
-        'site_key' => $_ENV['RECAPTCHA_SITEKEY'] ?? '',
+        'sitekey' => $_ENV['RECAPTCHA_SITEKEY'] ?? '',
         'secret' => $_ENV['RECAPTCHA_SECRET'] ?? '',
     ],
 ];

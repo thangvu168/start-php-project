@@ -1,7 +1,7 @@
 window.App = window.App || {};
 
 App.Auth = (function () {
-  function login({ email, password, remember_me }) {
+  function login({ email, password, remember_me, captcha }) {
     return $.ajax({
       url: "login",
       method: "POST",
@@ -9,6 +9,7 @@ App.Auth = (function () {
         email: email,
         password: password,
         remember_me: remember_me,
+        "g-recaptcha-response": captcha || "",
       },
     });
   }

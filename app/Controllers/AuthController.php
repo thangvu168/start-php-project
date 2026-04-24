@@ -18,6 +18,12 @@ class AuthController extends Controller
 
   public function showLogin(): void
   {
+    // Nếu đã đăng nhập thì chuyển hướng về trang chủ
+    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+      $this->redirect('/');
+      return;
+    }
+
     $ip = getClientIp();
     $attemptCount = $this->loginAttemptService->getAttempts($ip);
     $needsCaptcha = $this->loginAttemptService->needsCaptcha($ip);
@@ -116,6 +122,12 @@ class AuthController extends Controller
 
   public function showRegister(): void
   {
+    // Nếu đã đăng nhập thì chuyển hướng về trang chủ
+    if (isset($_SESSION['logged_in']) && $_SESSION['logged_in'] === true) {
+      $this->redirect('/');
+      return;
+    }
+
     $this->view('auth/register', [
       'title' => 'Register',
       'scripts' => ['/assets/js/pages/register.js'],

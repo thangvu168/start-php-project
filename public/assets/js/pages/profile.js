@@ -24,11 +24,20 @@ $(function () {
   $("#avatarInput").on("change", function () {
     var file = this.files[0];
     if (!file) return;
+    $("#removeAvatarInput").val("0");
     var reader = new FileReader();
     reader.onload = function (e) {
-      $("#avatarPreview").attr("src", e.target.result).show();
+      $("#avatarPreview").attr("src", e.target.result);
+      $("#avatarPreviewWrap").show();
     };
     reader.readAsDataURL(file);
+  });
+
+  // Xoá avatar: set flag, reset file input, ẩn preview
+  $("#btnRemoveAvatar").on("click", function () {
+    $("#removeAvatarInput").val("1");
+    $("#avatarInput").val("");
+    $("#avatarPreviewWrap").hide();
   });
 
   // Submit

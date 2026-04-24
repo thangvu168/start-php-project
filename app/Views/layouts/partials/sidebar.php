@@ -18,7 +18,7 @@ $menu = [
 
 <div class="sidebar">
     <div class="sidebar__avatar">
-        <img src="<?= htmlspecialchars(($_SESSION['avatar'] ?? '') ?: '/assets/image/default_avatar.webp') ?>" alt="Avatar">
+        <img src="<?= htmlspecialchars(($_SESSION['avatar'] ?? '') ?: '/assets/image/default_avatar.jpg') ?>" alt="Avatar">
     </div>
 
     <nav class="sidebar__menu">

@@ -93,6 +93,7 @@ class UserController extends Controller
 
 
         $uploadService = new UploadService();
+        $removeAvatar = ($_POST['remove_avatar'] ?? '') === '1';
 
         $avatarPath = null;
 
@@ -101,11 +102,13 @@ class UserController extends Controller
         }
 
         // Update DB
-        $this->userService->updateProfile($_SESSION['user_id'], $firstName, $lastName, $phone, $avatarPath);
+        $this->userService->updateProfile($_SESSION['user_id'], $firstName, $lastName, $phone, $avatarPath, $removeAvatar);
 
         $_SESSION['name'] = $firstName . ' ' . $lastName;
         if ($avatarPath !== null) {
             $_SESSION['avatar'] = $avatarPath;
+        } elseif ($removeAvatar) {
+            $_SESSION['avatar'] = null;
         }
 
         $this->json([

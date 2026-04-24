@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
+  padding: 24px 0;
 }
 
 .modal.hidden {
@@ -20,12 +21,23 @@
 .modal__content {
   position: relative;
   background: var(--white);
-  padding: 20px;
   border-radius: var(--radius-sm);
   max-width: 600px;
   min-width: 400px;
+  min-height: 160px;
   width: 100%;
   z-index: 1;
+  overflow: hidden;
+  /* 48px là khoảng padding dọc của container modal, đảm bảo modal không vượt quá chiều cao của viewport */
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+}
+
+.modal__content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   overflow: hidden;
 }
 
@@ -34,14 +46,14 @@
   align-items: center;
   justify-content: space-between;
   background: #ccc;
-  margin: -20px -20px 20px;
   padding: 14px 20px;
+  flex-shrink: 0;
 }
 
 .modal__title {
   margin: 0;
-  font-weight: bold;
-  color: var(--muted);
+  font-weight: 400;
+  color: var(--text);
 }
 
 .modal__close {
@@ -61,15 +73,17 @@
 }
 
 .modal__body {
-  /* padding: 20px; */
+  overflow-y: auto;
+  flex: 1;
+  padding: 20px;
 }
 
 .modal__footer {
   display: flex;
   gap: 10px;
   border-top: 1px dashed var(--border);
-  padding-top: 20px;
-  margin-top: 20px;
+  padding: 16px 20px;
+  flex-shrink: 0;
 }
 
 .modal__footer .btn {

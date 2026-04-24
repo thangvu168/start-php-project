@@ -22,7 +22,8 @@ class UserService
         string $firstName,
         string $lastName,
         string $phone,
-        ?string $avatarPath = null
+        ?string $avatarPath = null,
+        bool $removeAvatar = false
     ) {
         $data = [
             'first_name' => $firstName,
@@ -30,7 +31,9 @@ class UserService
             'phone'      => $phone,
         ];
 
-        if ($avatarPath !== null) {
+        if ($removeAvatar) {
+            $data['avatar'] = null;
+        } elseif ($avatarPath !== null) {
             $data['avatar'] = $avatarPath;
         }
 

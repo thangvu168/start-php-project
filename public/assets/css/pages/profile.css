@@ -157,10 +157,10 @@
 
 .edit-field {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 120px 1fr;
   gap: 16px;
   align-items: start;
-  padding: 14px 0;
+  padding: 12px 0;
 }
 
 .edit-field__label {
@@ -168,46 +168,14 @@
   flex-direction: column;
   gap: 2px;
   padding-top: 8px;
-}
-
-.edit-field__label strong {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.edit-field__label span {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: normal;
 }
 
 .edit-field__input {
   display: flex;
   flex-direction: column;
   gap: 4px;
-}
-
-.edit-field__input input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-size: 13px;
-  color: var(--text);
-  background: var(--white);
-  outline: none;
-  transition: border-color 0.15s;
-}
-
-.edit-field__input input:focus {
-  border-color: var(--primary);
-}
-
-.edit-field__input input:disabled {
-  background: var(--bg);
-  color: var(--muted);
-  cursor: not-allowed;
 }
 
 .avatar-file-label {
@@ -233,6 +201,13 @@
   flex-shrink: 0;
 }
 
+.avatar-preview-wrap {
+  position: relative;
+  display: inline-block;
+  margin-top: 10px;
+  width: fit-content;
+}
+
 .avatar-preview {
   width: 80px;
   height: 80px;
@@ -240,6 +215,32 @@
   object-position: center;
   border-radius: 20px;
   border: 1px solid var(--border);
+  display: block;
+}
+
+.avatar-preview.hidden {
   display: none;
-  margin-top: 10px;
+}
+
+.avatar-preview-remove {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--danger);
+  color: var(--white);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.avatar-preview-remove:hover {
+  background: #c0392b;
 }

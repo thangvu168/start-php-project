@@ -19,12 +19,7 @@ $(function () {
     App.Component.Form.clearErrors($form);
     var email = $form.find('[name="email"]').val();
 
-    var captcha = "";
-    if (typeof grecaptcha !== "undefined") {
-      captcha = grecaptcha.enterprise.getResponse();
-    }
-
-    App.Auth.forgotPassword({ email: email, captcha: captcha })
+    App.Auth.forgotPassword({ email: email })
       .then(function (res) {
         App.Component.Modal.setContent(
           "#modalForgot",

@@ -12,8 +12,11 @@ class Database
       self::$connection = new mysqli($db['host'], $db['username'], $db['password'], $db['database']);
 
       if (self::$connection->connect_error) {
-        die("Connection failed: " . self::$connection->connect_error);
+        error_log("DB connection failed: " . self::$connection->connect_error);
+        die("Không thể kết nối cơ sở dữ liệu. Vui lòng thử lại sau.");
       }
+
+      self::$connection->set_charset('utf8mb4');
     }
 
     return self::$connection;

@@ -50,7 +50,6 @@ class User extends BaseModel
       'last_name' => $this->lastName,
       'username' => $this->username,
       'email' => $this->email,
-      'password' => $this->password,
       'avatar' => $this->avatar,
       'phone' => $this->phone,
       'created_at' => $this->createdAt,

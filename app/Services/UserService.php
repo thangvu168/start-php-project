@@ -14,9 +14,7 @@ class UserService
             throw new HttpException('Không tìm thấy người dùng', 404);
         }
 
-        $user = User::fromArray($data)->toArray();
-        unset($user['password']);
-        return $user;
+        return User::fromArray($data)->toArray();
     }
 
     public function updateProfile(

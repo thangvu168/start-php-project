@@ -6,11 +6,8 @@ class MailService
 {
     public function send(string $to, string $subject, string $body): bool
     {
-        error_log("[MAIL] Sending email to $to with subject '$subject'");
         try {
             $mailEnv = config('mail');
-
-            error_log("[MAIL] Mail config: " . json_encode($mailEnv));
 
             $mail = new PHPMailer(true);
             $mail->isSMTP();

@@ -30,7 +30,9 @@ CREATE TABLE remember_tokens (
     user_id INT NOT NULL,
     token VARCHAR(255) NOT NULL,
     expires_at DATETIME NOT NULL,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_token (token),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE login_attempts (
@@ -39,3 +41,10 @@ CREATE TABLE login_attempts (
     first_attempt_at DATETIME NOT NULL,
     updated_at DATETIME NOT NULL
 );
+
+-- Index for remember_tokens
+-- CREATE INDEX idx_token ON remember_tokens (token);
+
+-- Foreign key for remember_tokens
+-- ALTER TABLE remember_tokens
+-- ADD CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

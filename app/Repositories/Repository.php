@@ -165,8 +165,7 @@ class Repository
     $sql = "INSERT INTO {$this->table} ({$columns}) VALUES ({$placeholders})";
     $stmt = $this->db->prepare($sql);
 
-    // Using s to dynamically bind parameters based on the number of data elements
-    $types = str_repeat('s', count($data));
+    $types = implode('', array_map(fn($v) => $this->detectType($v), array_values($data)));
     $stmt->bind_param($types, ...array_values($data));
     $stmt->execute();
 
@@ -183,8 +182,9 @@ class Repository
     $sql = "UPDATE {$this->table} SET {$setClause} WHERE {$this->primaryKey} = ?";
     $stmt = $this->db->prepare($sql);
 
-    $types = str_repeat('s', count($data)) . 'i';
-    $params = array_merge(array_values($data), [$id]);
+    $values = array_values($data);
+    $types = implode('', array_map(fn($v) => $this->detectType($v), $values)) . 'i';
+    $params = array_merge($values, [$id]);
     $stmt->bind_param($types, ...$params);
     return $stmt->execute();
   }

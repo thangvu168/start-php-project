@@ -7,8 +7,12 @@
   cursor: pointer;
   transition: all 0.3s ease;
   width: 100%;
-  background-color: var(--white);
+  background-color: var(--bg);
   color: var(--text);
+}
+
+.btn:hover {
+  background-color: var(--white);
 }
 
 .btn:disabled {

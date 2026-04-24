@@ -1,5 +1,5 @@
 <?php if (empty($page_header)): ?>
-<?php return; ?>
+    <?php return; ?>
 <?php endif; ?>
 
 <div class="page__header">
@@ -11,7 +11,12 @@
         </a>
     <?php endif; ?>
 
-    <h1 class="page__title"><?= htmlspecialchars($page_header['title'] ?? 'Page') ?></h1>
+    <div class="page__title-group">
+        <?php if (!empty($page_header['subtitle'])): ?>
+            <div class="page__subtitle"><?= htmlspecialchars($page_header['subtitle']) ?></div>
+        <?php endif; ?>
+        <h1 class="page__title"><?= htmlspecialchars($page_header['title'] ?? 'Page') ?></h1>
+    </div>
 
     <div class="page__buttons">
         <?php foreach ($page_header['buttons'] ?? [] as $button): ?>

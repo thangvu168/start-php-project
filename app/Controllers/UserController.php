@@ -11,23 +11,32 @@ class UserController extends Controller
         $this->userService = new UserService($userRepository);
     }
 
+    public function redirectToProfile(): void
+    {
+        $this->redirect('/profile');
+    }
+
     public function showProfile(): void
     {
         $user = $this->userService->getProfile($_SESSION['user_id']);
 
 
+        $fullName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+
         $this->view('profile/index', [
             'title'   => 'Hồ sơ',
             'user'    => $user,
+            'aside'   => 'Views/profile/aside',
             'scripts' => [
                 '/assets/js/modules/user.js',
                 '/assets/js/pages/profile.js',
             ],
             'page_header' => [
-                'title'    => 'Hồ sơ',
+                'subtitle' => 'Hồ sơ',
+                'title'    => $fullName,
                 'back_url' => '/',
                 'buttons'  => [
-                    ['text' => 'Chỉnh sửa', 'class' => 'btn-primary', 'id' => 'btnEditProfile'],
+                    ['text' => 'Chỉnh sửa hồ sơ', 'class' => 'btn-primary', 'id' => 'btnEditProfile'],
                 ],
             ],
         ]);

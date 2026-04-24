@@ -13,7 +13,7 @@ $router->post('/password/forgot', [AuthController::class, 'sendForgot']);
 $router->get('/password/reset', [AuthController::class, 'showReset']);
 $router->post('/password/reset', [AuthController::class, 'reset']);
 
-$router->get('/', [DashboardController::class, 'showDashboard'])->middleware([
+$router->get('/', [UserController::class, 'redirectToProfile'])->middleware([
     AuthMiddleware::class
 ]);
 

@@ -1,57 +1,100 @@
 .sidebar__avatar {
-  text-align: center;
-  padding: 20px 0;
+  display: flex;
+  justify-content: center;
+  padding: 20px 0 16px;
 }
 
 .sidebar__avatar img {
-  width: 40px;
-  height: 40px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--white);
+  object-position: center;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: block;
 }
 
 .sidebar__menu {
   flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
 }
 
-.sidebar__item {
+.sidebar__menu .menu__item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--white);
+  justify-content: center;
+  gap: 5px;
+  padding: 12px 6px;
+  color: rgba(255, 255, 255, 0.4);
   text-decoration: none;
-  padding: 16px 10px;
-  transition: 0.2s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
-.sidebar__item:hover {
-  background: var(--hover-bg);
+.sidebar__menu .menu__item:hover {
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.75);
 }
 
-.sidebar__item .icon svg {
-  width: 24px;
-  height: 24px;
+.sidebar__menu .menu__item.active {
+  background: rgba(0, 0, 0, 0.35);
+  color: #ffffff;
 }
 
-.sidebar__item .text {
-  font-size: 13px;
-  margin-top: 10px;
-  font-weight: bold;
+.sidebar__menu .menu__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+}
+
+.sidebar__menu .menu__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.sidebar__menu .menu__label {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .sidebar__logout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: var(--white);
-  padding: 16px 10px;
-  transition: 0.2s;
+  justify-content: center;
+  gap: 5px;
+  color: rgba(255, 255, 255, 0.3);
+  padding: 12px 6px;
+  margin-bottom: 4px;
+  transition:
+    background 0.15s,
+    color 0.15s;
   cursor: pointer;
-  margin-bottom: 8px;
-  gap: 8px;
+  user-select: none;
 }
 
 .sidebar__logout:hover {
-  background: var(--hover-bg);
+  background: rgba(0, 0, 0, 0.25);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.sidebar__logout svg {
+  width: 22px;
+  height: 22px;
+}
+
+.sidebar__logout span {
+  font-size: 10px;
+  font-weight: 600;
 }

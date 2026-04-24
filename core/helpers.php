@@ -97,3 +97,9 @@ function needsCaptcha(string $ip): bool
 {
     return getLoginAttempts($ip) >= 3;
 }
+
+// Sanitize output to prevent XSS
+function e($string): string
+{
+    return htmlspecialchars($string, ENT_QUOTES, 'UTF-8');
+}

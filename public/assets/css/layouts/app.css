@@ -4,7 +4,7 @@
 }
 
 #root .sidebar {
-  width: 100px;
+  width: var(--sidebar-width);
   height: 100vh;
   background: var(--bg-dark);
   color: white;
@@ -18,14 +18,33 @@
 #root .main__container {
   position: absolute;
   height: 100vh;
-  left: 100px;
+  left: var(--sidebar-width);
   top: 0;
   right: 0;
   bottom: 0;
-  background: var(--bg);
+  /* background: var(--bg); */
+  background: white;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+/* Wraps page header + content — takes remaining width */
+.main__inner {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Optional right aside rendered as sibling to main__inner */
+.main__aside {
+  width: 240px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--border-light);
+  background: var(--white);
+  overflow-y: auto;
 }
 
 /* Page Header */
@@ -61,12 +80,24 @@
   height: 20px;
 }
 
-.page__title {
+.page__title-group {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.page__subtitle {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.page__title {
   margin: 0;
-  font-size: 24px;
-  font-weight: 500;
-  color: var(--text);
+  font-size: 18px;
 }
 
 /* Content */

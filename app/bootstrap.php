@@ -10,6 +10,7 @@ require_once __DIR__ . '/../app/Repositories/Repository.php';
 require_once __DIR__ . '/../app/Repositories/UserRepository.php';
 require_once __DIR__ . '/../app/Repositories/PasswordResetRepository.php';
 require_once __DIR__ . '/../app/Repositories/RememberTokenRepository.php';
+require_once __DIR__ . '/../app/Repositories/LoginAttemptRepository.php';
 
 // Controller
 require_once __DIR__ . '/../app/Controllers/AuthController.php';
@@ -22,3 +23,4 @@ require_once __DIR__ . '/../app/Services/AuthService.php';
 require_once __DIR__ . '/../app/Services/UserService.php';
 require_once __DIR__ . '/../app/Services/UploadService.php';
 require_once __DIR__ . '/../app/Services/MailService.php';
+require_once __DIR__ . '/../app/Services/LoginAttemptService.php';

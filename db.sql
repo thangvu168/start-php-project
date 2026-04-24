@@ -32,3 +32,10 @@ CREATE TABLE remember_tokens (
     expires_at DATETIME NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE login_attempts (
+    ip VARCHAR(45) NOT NULL PRIMARY KEY,
+    attempts INT NOT NULL DEFAULT 0,
+    first_attempt_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
+);

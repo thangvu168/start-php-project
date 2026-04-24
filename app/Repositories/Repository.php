@@ -4,8 +4,23 @@ class Repository
 {
   protected string $table;
   protected string $primaryKey = 'id';
+  protected array $allowedColumns = [];
 
   public function __construct(protected mysqli $db) {}
+
+  // Kiểm tra cột có hợp lệ không, nếu allowedColumns rỗng thì cho phép tất cả, nếu không thì phải nằm trong allowedColumns
+  private function validateColumn(string $column): void
+  {
+    if (!empty($this->allowedColumns) && !in_array($column, $this->allowedColumns, true)) {
+      throw new InvalidArgumentException("Cột '$column' không hợp lệ.");
+    }
+  }
+
+  // Kiểm tra sort, chỉ cho phép 'ASC' hoặc 'DESC', mặc định là 'ASC'
+  private function validateDirection(string $dir): string
+  {
+    return $dir === 'DESC' ? 'DESC' : 'ASC';
+  }
 
   public function getById(int $id): ?array
   {
@@ -29,7 +44,7 @@ class Repository
    * $sort = ['column' => 'created_at', 'direction' => 'DESC'];
    * $limit = 10;
    * $offset = 20;
-   * 
+   *
    * SQL = "SELECT * FROM table WHERE status = 'active' AND created_at > '2024-01-01' AND id IN (1, 2, 3) AND price BETWEEN 10 AND 100 ORDER BY created_at DESC LIMIT 10 OFFSET 20"
    */
   public function getAll(
@@ -47,12 +62,14 @@ class Repository
 
       foreach ($filters as $filter) {
         $column = $filter['column'] ?? null;
-        $op     = strtoupper($filter['op'] ?? '=');
+        $op = strtoupper($filter['op'] ?? '=');
         $value  = $filter['value'] ?? null;
 
         if (!$column) {
           continue;
         }
+
+        $this->validateColumn($column);
 
         switch ($op) {
           case '=':
@@ -103,9 +120,10 @@ class Repository
 
     if (!empty($sort)) {
       $column = $sort['column'] ?? null;
-      $dir    = strtoupper($sort['dir'] ?? 'ASC');
+      $dir    = $this->validateDirection(strtoupper($sort['dir'] ?? 'ASC'));
 
       if ($column) {
+        $this->validateColumn($column);
         $sql .= " ORDER BY $column $dir";
       }
     }
@@ -137,6 +155,10 @@ class Repository
 
   public function create(array $data): int
   {
+    foreach (array_keys($data) as $col) {
+      $this->validateColumn($col);
+    }
+
     // implode: join array elements into a string with a separator
     $columns = implode(', ', array_keys($data));
     $placeholders = implode(', ', array_fill(0, count($data), '?'));
@@ -153,6 +175,10 @@ class Repository
 
   public function update(int $id, array $data): bool
   {
+    foreach (array_keys($data) as $col) {
+      $this->validateColumn($col);
+    }
+
     $setClause = implode(', ', array_map(fn($col) => "{$col} = ?", array_keys($data)));
     $sql = "UPDATE {$this->table} SET {$setClause} WHERE {$this->primaryKey} = ?";
     $stmt = $this->db->prepare($sql);

@@ -84,6 +84,7 @@ class UserController extends Controller
                     'message' => 'Vui lòng kiểm tra thông tin',
                     'errors' => $errors,
                 ], 422);
+                return;
             } else {
                 $_SESSION['errors'] = $errors;
                 $this->redirect('/profile');

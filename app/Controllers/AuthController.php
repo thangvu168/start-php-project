@@ -3,7 +3,7 @@
 class AuthController extends Controller
 {
   private AuthService $authService;
-
+  private LoginAttemptService $loginAttemptService;
 
   public function __construct()
   {
@@ -11,14 +11,16 @@ class AuthController extends Controller
     $userRepository = new UserRepository($db);
     $passwordResetRepository = new PasswordResetRepository($db);
     $rememberTokenRepository = new RememberTokenRepository($db);
+    $loginAttemptRepository = new LoginAttemptRepository($db);
     $this->authService = new AuthService($userRepository, $passwordResetRepository, $rememberTokenRepository);
+    $this->loginAttemptService = new LoginAttemptService($loginAttemptRepository);
   }
 
   public function showLogin(): void
   {
     $ip = getClientIp();
-    $attemptCount = getLoginAttempts($ip);
-    $needsCaptcha = needsCaptcha($ip);
+    $attemptCount = $this->loginAttemptService->getAttempts($ip);
+    $needsCaptcha = $this->loginAttemptService->needsCaptcha($ip);
 
     $this->view('auth/login', [
       'title' => 'Login',
@@ -34,11 +36,10 @@ class AuthController extends Controller
     $this->validateCsrfToken();
 
     $ip = getClientIp();
-    getLoginAttempts($ip); // Đảm bảo session đã được khởi tạo cho IP này
-    $needsCaptcha = needsCaptcha($ip);
+    $needsCaptcha = $this->loginAttemptService->needsCaptcha($ip);
 
     $email = trim($_POST['email'] ?? '');
-    $password = trim($_POST['password'] ?? '');
+    $password = $_POST['password'] ?? '';
     $rememberMe = isset($_POST['remember_me']) && $_POST['remember_me'] === 'true';
     $captchaToken = trim($_POST['g-recaptcha-response'] ?? '');
 
@@ -61,6 +62,7 @@ class AuthController extends Controller
         'message' => 'Vui lòng hoàn thành xác minh reCAPTCHA',
         'errors' => [],
       ], 429);
+      return;
     }
 
     if (!empty($errors)) {
@@ -69,13 +71,14 @@ class AuthController extends Controller
         'message' => 'Vui lòng kiểm tra lại thông tin',
         'errors' => $errors,
       ], 422);
+      return;
     }
 
     try {
       $user = $this->authService->login($email, $password, $rememberMe);
 
       // Login successful - reset attempts
-      resetLoginAttempts($ip);
+      $this->loginAttemptService->reset($ip);
       session_regenerate_id(true);
 
       // Set user session
@@ -93,7 +96,7 @@ class AuthController extends Controller
       ]);
     } catch (HttpException $e) {
       // Login failed - increment attempts
-      $newAttemptCount = incrementLoginAttempts($ip);
+      $newAttemptCount = $this->loginAttemptService->increment($ip);
 
       // If now >= 3 attempts, tell client to reload
       if ($newAttemptCount >= 3) {
@@ -123,13 +126,13 @@ class AuthController extends Controller
   {
     $this->validateCsrfToken();
 
-    $confirmPassword = trim($_POST['confirm_password'] ?? '');
+    $confirmPassword = $_POST['confirm_password'] ?? '';
     $data = [
       'first_name' => trim($_POST['first_name'] ?? ''),
       'last_name' => trim($_POST['last_name'] ?? ''),
       'username' => trim($_POST['username'] ?? ''),
       'email' => trim($_POST['email'] ?? ''),
-      'password' => trim($_POST['password'] ?? ''),
+      'password' => $_POST['password'] ?? '',
     ];
 
     $errors = [];
@@ -172,6 +175,7 @@ class AuthController extends Controller
         'message' => 'Vui lòng kiểm tra lại thông tin',
         'errors' => $errors,
       ], 422);
+      return;
     }
 
 
@@ -214,6 +218,7 @@ class AuthController extends Controller
 
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
       $this->json(['success' => false, 'message' => 'Email không hợp lệ'], 422);
+      return;
     }
 
     $this->authService->sendForgotPassword($email);
@@ -241,10 +246,12 @@ class AuthController extends Controller
 
     if ($password === '' || strlen($password) < 6) {
       $this->json(['success' => false, 'message' => 'Mật khẩu không hợp lệ', 'errors' => ['password' => 'Mật khẩu phải có ít nhất 6 ký tự']], 422);
+      return;
     }
 
     if ($password !== $confirm) {
       $this->json(['success' => false, 'message' => 'Xác nhận mật khẩu không khớp', 'errors' => ['confirm_password' => 'Xác nhận mật khẩu không đúng']], 422);
+      return;
     }
 
     $this->authService->resetPassword($token, $password);

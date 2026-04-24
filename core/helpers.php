@@ -44,60 +44,6 @@ function getClientIp(): string
 }
 
 
-function getLoginAttempts(string $ip): int
-{
-    if (!isset($_SESSION['login_attempts'])) {
-        $_SESSION['login_attempts'] = [];
-    }
-
-    $key = "attempts_{$ip}";
-    $timeKey = "time_{$ip}";
-
-    // Kiểm tra nếu đã quá 1 giờ kể từ lần ghi nhận đầu tiên -> reset
-    if (isset($_SESSION['login_attempts'][$timeKey])) {
-        if (time() - $_SESSION['login_attempts'][$timeKey] > 3600) {
-            unset($_SESSION['login_attempts'][$key]);
-            unset($_SESSION['login_attempts'][$timeKey]);
-            return 0;
-        }
-    }
-
-    return $_SESSION['login_attempts'][$key] ?? 0;
-}
-
-function incrementLoginAttempts(string $ip): int
-{
-    if (!isset($_SESSION['login_attempts'])) {
-        $_SESSION['login_attempts'] = [];
-    }
-
-    $key = "attempts_{$ip}";
-    $timeKey = "time_{$ip}";
-
-    $_SESSION['login_attempts'][$key] = (getLoginAttempts($ip) + 1);
-    $_SESSION['login_attempts'][$timeKey] = time();
-
-    return $_SESSION['login_attempts'][$key];
-}
-
-function resetLoginAttempts(string $ip): void
-{
-    if (!isset($_SESSION['login_attempts'])) {
-        $_SESSION['login_attempts'] = [];
-    }
-
-    $key = "attempts_{$ip}";
-    $timeKey = "time_{$ip}";
-
-    unset($_SESSION['login_attempts'][$key]);
-    unset($_SESSION['login_attempts'][$timeKey]);
-}
-
-function needsCaptcha(string $ip): bool
-{
-    return getLoginAttempts($ip) >= 3;
-}
-
 // Sanitize output to prevent XSS
 function e($string): string
 {

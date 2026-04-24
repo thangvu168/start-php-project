@@ -3,6 +3,9 @@
 class RememberTokenRepository extends Repository
 {
     protected string $table = 'remember_tokens';
+    protected array $allowedColumns = [
+        'id', 'user_id', 'token', 'expires_at', 'created_at',
+    ];
 
     public function findValidToken(string $token): ?array
     {

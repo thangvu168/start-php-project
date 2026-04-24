@@ -96,7 +96,8 @@ class AuthService
   {
     $user = $this->getUserByEmail($email);
     if (!$user) {
-      throw new HttpException("Email không tồn tại", 422);
+      // Nếu không có user thì không làm gì
+      return;
     }
 
     $token = bin2hex(random_bytes(32));

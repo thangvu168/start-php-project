@@ -28,6 +28,11 @@ class AuthService
       throw new HttpException("Email hoặc mật khẩu không đúng", 401);
     }
 
+    $this->rememberTokenRepository->execute(
+      'DELETE FROM remember_tokens WHERE user_id = ? AND expires_at < NOW()',
+      [$user->id]
+    );
+
     if ($rememberMe) {
       $token = bin2hex(random_bytes(32));
       $hash = hash('sha256', $token);
@@ -104,6 +109,11 @@ class AuthService
     $hash = hash('sha256', $token);
     $expires = date('Y-m-d H:i:s', time() + 3600);
 
+    $this->passwordResetRepository->execute(
+      'DELETE FROM password_resets WHERE email = ? AND expires_at < NOW()',
+      [$email]
+    );
+
     $this->passwordResetRepository->create([
       'email' => $email,
       'token_hash' => $hash,
@@ -115,7 +125,6 @@ class AuthService
     $link = sprintf('%s/password/reset?token=%s', $this->getBaseUrl(), urlencode($token));
     $viewFile = __DIR__ . '/../Views/emails/password_reset.php';
     ob_start();
-    $link = $link;
     require $viewFile;
     $body = ob_get_clean();
     $this->mailService->send($email, 'Yêu cầu đặt lại mật khẩu', $body);

@@ -60,7 +60,7 @@ class UserController extends Controller
             $errors['last_name'] = 'Tên là bắt buộc';
         }
 
-        if ($phone !== '' && !preg_match('/^[\+]?[0-9\-\(\)\s]+$/', $phone)) {
+        if ($phone !== '' && !preg_match(ValidationRules::PHONE, $phone)) {
             $errors['phone'] = 'Số điện thoại không hợp lệ';
         }
 

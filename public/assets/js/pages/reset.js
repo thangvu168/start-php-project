@@ -26,6 +26,9 @@ $(function () {
 
     App.Component.Form.clearErrors($form);
 
+    var $btn = $("#btnReset");
+    $btn.prop("disabled", true);
+
     App.Auth.resetPassword({
       token: token,
       password: password,
@@ -42,6 +45,7 @@ $(function () {
         }, 1200);
       })
       .catch(function (err) {
+        $btn.prop("disabled", false);
         var payload = err.responseJSON || {};
         if (payload.errors) {
           App.Component.Form.renderErrors($form, payload.errors);

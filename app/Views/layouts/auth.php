@@ -20,6 +20,7 @@
         <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <?php endif; ?>
     <script src="/assets/js/components/modal.js"></script>
+    <script src="/assets/js/helpers/validation.js"></script>
     <script src="/assets/js/components/form.js"></script>
     <script src="/assets/js/modules/auth.js"></script>
     <?php foreach ($scripts ?? [] as $script): ?>

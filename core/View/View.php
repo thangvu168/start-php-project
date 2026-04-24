@@ -9,8 +9,7 @@ class View
         $viewFile = self::$_BASE_PATH . $view . '.php';
 
         if (!file_exists($viewFile)) {
-            http_response_code(404);
-            echo "View not found: {$view}";
+            self::renderError(404);
             return;
         }
 

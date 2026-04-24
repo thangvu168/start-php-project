@@ -10,7 +10,7 @@ $(function () {
     },
     phone: {
       minLength: [8, "Số điện thoại không hợp lệ"],
-      pattern: [/^[\+]?[0-9\-\(\)\s]+$/, "Số điện thoại không hợp lệ"],
+      pattern: [App.Validation.phone, "Số điện thoại không hợp lệ"],
     },
   };
 
@@ -45,12 +45,16 @@ $(function () {
 
     App.Component.Form.clearErrors($form);
 
+    var $btn = $form.find('[type="submit"]');
+    $btn.prop("disabled", true);
+
     App.User.updateProfile(new FormData($form[0]))
       .then(function () {
         App.Component.Modal.close("#editProfileModal");
         window.location.reload();
       })
       .catch(function (xhr) {
+        $btn.prop("disabled", false);
         var payload = xhr.responseJSON || {};
         if (payload.errors) {
           App.Component.Form.renderErrors($form, payload.errors);

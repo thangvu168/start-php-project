@@ -1,5 +1,8 @@
 <?php
 
+// Helpers
+require_once __DIR__ . '/../app/Helpers/ValidationRules.php';
+
 // Model
 require_once __DIR__ . '/../app/Models/BaseModel.php';
 require_once __DIR__ . '/../app/Models/User.php';

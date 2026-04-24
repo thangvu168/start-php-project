@@ -76,13 +76,15 @@ class Router
     return $next;
   }
 
-  // Hỗ trợ tìm kiếm các token trong database để xác thực người dùng
   private function resolveMiddleware(string $class)
   {
     $db = Database::getConnection();
 
-    return new $class(
-      new RememberTokenRepository($db),
-    );
+    // Inject dependency vào từng middleware
+    $factories = [
+      AuthMiddleware::class => fn() => new AuthMiddleware(new RememberTokenRepository($db)),
+    ];
+
+    return isset($factories[$class]) ? ($factories[$class])() : new $class();
   }
 }

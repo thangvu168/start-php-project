@@ -3,7 +3,7 @@ $(function () {
   var loginRules = {
     email: {
       required: "Email là bắt buộc",
-      pattern: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Định dạng email không hợp lệ"],
+      pattern: [App.Validation.email, "Định dạng email không hợp lệ"],
     },
     password: { required: "Mật khẩu là bắt buộc" },
   };
@@ -30,6 +30,9 @@ $(function () {
 
     App.Component.Form.clearErrors($form);
 
+    var $btn = $("#btnLogin");
+    $btn.prop("disabled", true);
+
     App.Auth.login({
       email: $form.find('[name="email"]').val(),
       password: $form.find('[name="password"]').val(),
@@ -40,6 +43,8 @@ $(function () {
         window.location.href = response.redirect || "/";
       })
       .catch(function (error) {
+        $btn.prop("disabled", false);
+
         var payload = error.responseJSON || {};
 
         // If reload is needed (reached 3 attempts), reload the page

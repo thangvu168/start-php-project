@@ -9,7 +9,7 @@ $(function () {
     },
     email: {
       required: "Email là bắt buộc",
-      pattern: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Định dạng email không hợp lệ"],
+      pattern: [App.Validation.email, "Định dạng email không hợp lệ"],
     },
     password: {
       required: "Mật khẩu là bắt buộc",
@@ -34,6 +34,9 @@ $(function () {
 
     App.Component.Form.clearErrors($form);
 
+    var $btn = $("#btnRegister");
+    $btn.prop("disabled", true);
+
     App.Auth.register({
       firstName: $form.find('[name="first_name"]').val(),
       lastName: $form.find('[name="last_name"]').val(),
@@ -46,6 +49,8 @@ $(function () {
         window.location.href = response.redirect || "/login";
       })
       .catch(function (error) {
+        $btn.prop("disabled", false);
+
         var payload = error.responseJSON || {};
         if (payload.errors) {
           App.Component.Form.renderErrors($form, payload.errors);

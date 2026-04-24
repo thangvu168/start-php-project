@@ -47,7 +47,7 @@ class AuthController extends Controller
 
     if ($email === '') {
       $errors['email'] = 'Email là bắt buộc';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (!preg_match(ValidationRules::EMAIL, $email)) {
       $errors['email'] = 'Định dạng email không hợp lệ';
     }
 
@@ -216,7 +216,7 @@ class AuthController extends Controller
 
     $email = trim($_POST['email'] ?? '');
 
-    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    if ($email === '' || !preg_match(ValidationRules::EMAIL, $email)) {
       $this->json(['success' => false, 'message' => 'Email không hợp lệ'], 422);
       return;
     }

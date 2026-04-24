@@ -4,8 +4,7 @@ $(function () {
   });
 
   $("#btnConfirmLogout").on("click", function () {
-    console.log("Confirm logout clicked");
-    App.Auth.logout().then(function () {
+    App.Auth.logout().finally(function () {
       window.location.href = "/login";
     });
   });

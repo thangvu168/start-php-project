@@ -2,7 +2,7 @@ $(function () {
   var forgotRule = {
     email: {
       required: "Email là bắt buộc",
-      pattern: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Định dạng email không hợp lệ"],
+      pattern: [App.Validation.email, "Định dạng email không hợp lệ"],
     },
   };
 
@@ -19,8 +19,12 @@ $(function () {
     App.Component.Form.clearErrors($form);
     var email = $form.find('[name="email"]').val();
 
+    var $btn = $("#btnForgot");
+    $btn.prop("disabled", true);
+
     App.Auth.forgotPassword({ email: email })
       .then(function (res) {
+        $btn.prop("disabled", false);
         App.Component.Modal.setContent(
           "#modalForgot",
           res.message || "Nếu email tồn tại, bạn sẽ nhận được hướng dẫn.",
@@ -28,6 +32,7 @@ $(function () {
         App.Component.Modal.open("#modalForgot");
       })
       .catch(function (err) {
+        $btn.prop("disabled", false);
         var payload = err.responseJSON || {};
         if (payload.errors) {
           App.Component.Form.renderErrors($form, payload.errors);
